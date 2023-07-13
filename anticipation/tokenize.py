@@ -134,6 +134,32 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
 
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
 
+def distort_midi(midi):
+
+  # setting the tempo & rhythm metrics
+  for message in midi:
+    if message.type == 'set_tempo':
+      tempo = message.tempo
+      break
+  if not tempo:
+    print("error, no set tempo")
+  bpm = tempo2bpm(tempo)
+  ticks_per_beat = midi.ticks_per_beat
+
+  compound = midi_to_compound(midi)
+
+  for i in range(len(compound[0::5])):
+    compound[i*5] = second2tick(((round((tick2second(compound[i*5], ticks_per_beat, tempo))*10))/10), ticks_per_beat, tempo)
+
+  for i in range(len(compound[2::5])):
+    compound[i*5 + 2] = (compound[i*5 + 2] % 12) + 60
+
+  for i in range(len(compound[3::5])):
+    compound[i*5 + 3] = 0
+
+  result = compound_to_midi(compound)
+
+  return result
 
 def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
     tokens = []
@@ -155,67 +181,44 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             instruments = list(ops.get_instruments(all_events).keys())
             end_time = ops.max_time(all_events, seconds=False)
 
-            # different random augmentations
-            for k in range(augment_factor):
-                if k % 10 == 0:
-                    # no augmentation
-                    events = all_events.copy()
-                    controls = []
-                elif k % 10 == 1:
-                    # span augmentation
-                    lmbda = .05
-                    events, controls = extract_spans(all_events, lmbda)
-                elif k % 10 < 6:
-                    # random augmentation
-                    r = np.random.randint(1,ANTICIPATION_RATES)
-                    events, controls = extract_random(all_events, r)
-                else:
-                    if len(instruments) > 1:
-                        # instrument augmentation: at least one, but not all instruments
-                        u = 1+np.random.randint(len(instruments)-1)
-                        subset = np.random.choice(instruments, u, replace=False)
-                        events, controls = extract_instruments(all_events, subset)
-                    else:
-                        # no augmentation
-                        events = all_events.copy()
-                        controls = []
+            events = all_events.copy()
+            controls = midi_to_events(distort_midi(events_to_midi(all_events)))
+            
+            z = ANTICIPATE
 
-                if len(concatenated_tokens) == 0:
-                    z = ANTICIPATE if k % 10 != 0 else AUTOREGRESS
+            all_truncations += truncations
+            events = ops.pad(events, end_time)
+            rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
+            tokens, controls = ops.anticipate(events, controls)
+            assert len(controls) == 0 # should have consumed all controls (because of padding)
+            tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
+            concatenated_tokens.extend(tokens)
 
-                all_truncations += truncations
-                events = ops.pad(events, end_time)
-                rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
-                tokens, controls = ops.anticipate(events, controls)
-                assert len(controls) == 0 # should have consumed all controls (because of padding)
-                tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
-                concatenated_tokens.extend(tokens)
+            # write out full sequences to file
+            while len(concatenated_tokens) >= EVENT_SIZE*M:
+                seq = concatenated_tokens[0:EVENT_SIZE*M]
+                concatenated_tokens = concatenated_tokens[EVENT_SIZE*M:]
 
-                # write out full sequences to file
-                while len(concatenated_tokens) >= EVENT_SIZE*M:
-                    seq = concatenated_tokens[0:EVENT_SIZE*M]
-                    concatenated_tokens = concatenated_tokens[EVENT_SIZE*M:]
+                try:
+                    # relativize time to the sequence
+                    seq = ops.translate(
+                            seq, -ops.min_time(seq, seconds=False), seconds=False)
 
-                    try:
-                        # relativize time to the sequence
-                        seq = ops.translate(
-                                seq, -ops.min_time(seq, seconds=False), seconds=False)
+                    # should have relativized to zero
+                    assert ops.min_time(seq, seconds=False) == 0
+                except OverflowError:
+                    # relativized time exceeds MAX_TIME
+                    stats[3] += 1
+                    continue
 
-                        # should have relativized to zero
-                        assert ops.min_time(seq, seconds=False) == 0
-                    except OverflowError:
-                        # relativized time exceeds MAX_TIME
-                        stats[3] += 1
-                        continue
+                # if seq contains SEPARATOR, global controls describe the first sequence
+                seq.insert(0, z)
 
-                    # if seq contains SEPARATOR, global controls describe the first sequence
-                    seq.insert(0, z)
+                outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
+                seqcount += 1
 
-                    outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
-                    seqcount += 1
-
-                    # grab the current augmentation controls if we didn't already
-                    z = ANTICIPATE if k % 10 != 0 else AUTOREGRESS
+                # grab the current augmentation controls if we didn't already
+                z = ANTICIPATE
 
     if debug:
         fmt = 'Processed {} sequences (discarded {} tracks, discarded {} seqs, added {} rest tokens)'
