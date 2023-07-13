@@ -159,11 +159,7 @@ def distort_midi(all_events):
     compound[i*5 + 3] = 0
 
   control_events = compound_to_midi(midi_to_events(compound))
-  controls = []
-    
-  for time, dur, note in zip(control_events[0::3],control_events[1::3],control_events[2::3]):
-      # mark this event as a control
-      controls.extend([CONTROL_OFFSET+time, CONTROL_OFFSET+dur, CONTROL_OFFSET+note])
+  controls = [tok + CONTROL_OFFSET for tok in control_events]
       
   return controls
 
