@@ -184,6 +184,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             
             events = all_events.copy()
             controls = midi_to_events(distort_midi(events_to_midi(all_events)))
+            controls = [tok + CONTROL_OFFSET for tok in controls]
                 
             z = ANTICIPATE
     
