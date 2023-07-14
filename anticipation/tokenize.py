@@ -199,8 +199,13 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             all_truncations += truncations
             events = ops.pad(events, end_time)
             rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
+
+            len_tokens_before = len(events) + len(controls)
+            
             tokens, controls = ops.anticipate(events, controls)
             assert len(controls) == 0 # should have consumed all controls (because of padding)
+            assert len(tokens) = len_tokens_before
+            
             tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
             concatenated_tokens.extend(tokens)
     
