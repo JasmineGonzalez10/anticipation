@@ -185,55 +185,55 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             instruments = list(ops.get_instruments(all_events).keys())
             end_time = ops.max_time(all_events, seconds=False)
 
-            
-            events = all_events.copy()
-            controls = distort(events)
-                
-            z = ANTICIPATE
-    
-            all_truncations += truncations
-            events = ops.pad(events, end_time)
-            rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
-
-            len_tokens_before = len(controls) + len(events)
-            
-            tokens, controls = ops.anticipate(events, controls)
-            assert len(controls) == 0 # should have consumed all controls (because of padding)
-
-            # try seeing which is longer
-            if(len_tokens_before > len(tokens)):
-                concatenated_tokens.extend(numpy.zeros(10))
-            elif(len_tokens_before < len(tokens)):
-                concatenated_tokens.extend(numpy.ones(10))
-            else:
-                tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
-                concatenated_tokens.extend(tokens)
-    
-            # write out full sequences to file
-            while len(concatenated_tokens) >= EVENT_SIZE*M:
-                seq = concatenated_tokens[0:EVENT_SIZE*M]
-                concatenated_tokens = concatenated_tokens[EVENT_SIZE*M:]
-    
-                try:
-                    # relativize time to the sequence
-                    seq = ops.translate(
-                            seq, -ops.min_time(seq, seconds=False), seconds=False)
-    
-                    # should have relativized to zero
-                    assert ops.min_time(seq, seconds=False) == 0
-                 except OverflowError:
-                    # relativized time exceeds MAX_TIME
-                        tats[3] += 1
-                    continue
-    
-                # if seq contains SEPARATOR, global controls describe the first sequence
-                seq.insert(0, z)
-    
-                outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
-                seqcount += 1
-    
-                # grab the current augmentation controls if we didn't already
+            for k in range(augment_factor):
+                events = all_events.copy()
+                controls = distort(events)
+                    
                 z = ANTICIPATE
+        
+                all_truncations += truncations
+                events = ops.pad(events, end_time)
+                rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
+    
+                len_tokens_before = len(controls) + len(events)
+                
+                tokens, controls = ops.anticipate(events, controls)
+                assert len(controls) == 0 # should have consumed all controls (because of padding)
+    
+                # try seeing which is longer
+                if(len_tokens_before > len(tokens)):
+                    concatenated_tokens.extend(numpy.zeros(10))
+                elif(len_tokens_before < len(tokens)):
+                    concatenated_tokens.extend(numpy.ones(10))
+                else:
+                    tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
+                    concatenated_tokens.extend(tokens)
+        
+                # write out full sequences to file
+                while len(concatenated_tokens) >= EVENT_SIZE*M:
+                    seq = concatenated_tokens[0:EVENT_SIZE*M]
+                    concatenated_tokens = concatenated_tokens[EVENT_SIZE*M:]
+        
+                    try:
+                        # relativize time to the sequence
+                        seq = ops.translate(
+                                seq, -ops.min_time(seq, seconds=False), seconds=False)
+        
+                        # should have relativized to zero
+                        assert ops.min_time(seq, seconds=False) == 0
+                     except OverflowError:
+                        # relativized time exceeds MAX_TIME
+                            tats[3] += 1
+                        continue
+        
+                    # if seq contains SEPARATOR, global controls describe the first sequence
+                    seq.insert(0, z)
+        
+                    outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
+                    seqcount += 1
+        
+                    # grab the current augmentation controls if we didn't already
+                    z = ANTICIPATE
 
 
     if debug:
