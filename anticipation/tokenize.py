@@ -194,20 +194,10 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 all_truncations += truncations
                 events = ops.pad(events, end_time)
                 rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
-    
-                len_tokens_before = len(controls) + len(events)
-                
                 tokens, controls = ops.anticipate(events, controls)
                 assert len(controls) == 0 # should have consumed all controls (because of padding)
-    
-                # try seeing which is longer
-                #if(len_tokens_before > len(tokens)):
-                    #concatenated_tokens.extend(numpy.zeros(10))
-                if(len_tokens_before < len(tokens)):
-                    #concatenated_tokens.extend(numpy.ones(10))
-                else:
-                    tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
-                    concatenated_tokens.extend(tokens)
+                tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
+                concatenated_tokens.extend(tokens)
         
                 # write out full sequences to file
                 while len(concatenated_tokens) >= EVENT_SIZE*M:
