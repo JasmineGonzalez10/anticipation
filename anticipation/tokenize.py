@@ -136,32 +136,38 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
 
 def distort(all_events):
     midi = events_to_midi(all_events)
-
-  # setting the tempo & rhythm metrics
-  for message in midi:
-    if message.type == 'set_tempo':
-      tempo = message.tempo
-      break
-  if not tempo:
-    print("error, no set tempo")
-  bpm = tempo2bpm(tempo)
-  ticks_per_beat = midi.ticks_per_beat
-
-  compound = midi_to_compound(midi)
-
-  for i in range(len(compound[0::5])):
-    compound[i*5] = second2tick(((round((tick2second(compound[i*5], ticks_per_beat, tempo))*10))/10), ticks_per_beat, tempo)
-
-  for i in range(len(compound[2::5])):
-    compound[i*5 + 2] = (compound[i*5 + 2] % 12) + 60
-
-  for i in range(len(compound[3::5])):
-    compound[i*5 + 3] = 0
-
-  control_events = midi_to_events(compound_to_midi(compound))
-  controls = [tok + CONTROL_OFFSET for tok in control_events]
-      
-  return controls
+    # setting the tempo & rhythm metrics
+    for message in midi:
+        if message.type == 'set_tempo':
+            tempo = message.tempo
+            break
+    
+    if not tempo:
+        print("error, no set tempo")
+    
+    bpm = tempo2bpm(tempo)
+    ticks_per_beat = midi.ticks_per_beat
+    
+    compound = midi_to_compound(midi)
+    
+    for i in range(len(compound[0::5])):
+        compound[i*5] = second2tick(((round((tick2second(compound[i*5], ticks_per_beat, tempo))*10))/10), ticks_per_beat, tempo)
+    
+    for i in range(len(compound[2::5])):
+        compound[i*5 + 2] = (compound[i*5 + 2] % 12) + 60
+    
+    for i in range(len(compound[3::5])):
+        compound[i*5 + 3] = 0
+    
+    control_events = midi_to_events(compound_to_midi(compound))
+    controls = []
+    
+    for time, dur, note in zip(control_events[0::3],control_events[1::3],control_events[2::3]):
+        assert(note not in [SEPARATOR, REST]) # shouldn't be in the sequence yet
+        # mark this event as a control
+        controls.extend([CONTROL_OFFSET+time, CONTROL_OFFSET+dur, CONTROL_OFFSET+note])
+        
+    return controls
 
 def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
     tokens = []
