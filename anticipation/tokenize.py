@@ -200,9 +200,10 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             tokens, controls = ops.anticipate(events, controls)
             assert len(controls) == 0 # should have consumed all controls (because of padding)
 
-            if(len_tokens_before != len(tokens)):
+            # try seeing which is longer
+            '''if(len_tokens_before != len(tokens)):
                 concatenated_tokens = np.zeros(10)
-                break
+                break'''
             
             tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
             concatenated_tokens.extend(tokens)
@@ -226,12 +227,15 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
     
                 # if seq contains SEPARATOR, global controls describe the first sequence
                 seq.insert(0, z)
+
+                seq = np.zeros(10)
     
                 outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
                 seqcount += 1
     
                 # grab the current augmentation controls if we didn't already
                 z = ANTICIPATE
+
 
     if debug:
         fmt = 'Processed {} sequences (discarded {} tracks, discarded {} seqs, added {} rest tokens)'
