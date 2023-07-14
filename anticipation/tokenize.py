@@ -186,6 +186,9 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             end_time = ops.max_time(all_events, seconds=False)
 
             for k in range(augment_factor):
+
+                ### RIGHT NOW ###
+                ## controls are not getting incorporated at all ##
                 events = all_events.copy()
                 controls = distort(events)
                 assert len(controls) != 0
