@@ -188,6 +188,9 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             for k in range(augment_factor):
                 events = all_events.copy()
                 controls = distort(events)
+
+                if len(controls == 0):
+                    break
                     
                 z = ANTICIPATE
         
@@ -195,10 +198,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 events = ops.pad(events, end_time)
                 rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
                 tokens, controls = ops.anticipate(events, controls)
-                if controls == np.zeros(5):
-                    raise Exception("empty control set passed in")
                 assert len(controls) == 0 # should have consumed all controls (because of padding)
-                
                 tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
                 concatenated_tokens.extend(tokens)
         
