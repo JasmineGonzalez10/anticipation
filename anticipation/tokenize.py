@@ -203,8 +203,8 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 # try seeing which is longer
                 if(len_tokens_before > len(tokens)):
                     concatenated_tokens.extend(numpy.zeros(10))
-                elif(len_tokens_before < len(tokens)):
-                    concatenated_tokens.extend(numpy.ones(10))
+                #elif(len_tokens_before < len(tokens)):
+                    #concatenated_tokens.extend(numpy.ones(10))
                 else:
                     tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
                     concatenated_tokens.extend(tokens)
