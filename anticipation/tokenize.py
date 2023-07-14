@@ -134,8 +134,9 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
 
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
 
-def distort(all_events):
-    midi = events_to_midi(all_events)
+def distort(events):
+    midi = events_to_midi(events)
+    
     # setting the tempo & rhythm metrics
     for message in midi:
         if message.type == 'set_tempo':
@@ -159,14 +160,14 @@ def distort(all_events):
     for i in range(len(compound[3::5])):
         compound[i*5 + 3] = 0
     
-    control_events = midi_to_events(compound_to_midi(compound))
-    controls = []
+    control_events = compound_to_events(compound)
+    controls = [CONTROL_OFFSET + tok for tok in control_events]
     
-    for time, dur, note in zip(control_events[0::3],control_events[1::3],control_events[2::3]):
-        assert(note not in [SEPARATOR, REST]) # shouldn't be in the sequence yet
+    #for time, dur, note in zip(control_events[0::3],control_events[1::3],control_events[2::3]):
+        #assert(note not in [SEPARATOR, REST]) # shouldn't be in the sequence yet
         # mark this event as a control
-        controls.extend([CONTROL_OFFSET+time, CONTROL_OFFSET+dur, CONTROL_OFFSET+note])
-    print(controls)
+        #controls.extend([CONTROL_OFFSET+time, CONTROL_OFFSET+dur, CONTROL_OFFSET+note])
+        
     return controls
 
 def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
@@ -191,7 +192,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
 
             
             events = all_events.copy()
-            controls = distort(all_events)
+            controls = distort(events)
                 
             z = ANTICIPATE
     
