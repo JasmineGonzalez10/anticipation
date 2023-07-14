@@ -166,7 +166,7 @@ def anticipate(events, controls, delta=DELTA*TIME_RESOLUTION):
     """
 
     if len(controls) == 0:
-        return events, controls
+        return numpy.ones(20), numpy.zeros(20)
 
     tokens = []
     event_time = 0
