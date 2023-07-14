@@ -165,8 +165,8 @@ def anticipate(events, controls, delta=DELTA*TIME_RESOLUTION):
       controls : unconsumed controls (control time > max_time(events) + delta)
     """
 
-    if len(controls) == 0:
-        return numpy.ones(20), numpy.zeros(20)
+    '''if len(controls) == 0:
+        return events, controls'''
 
     tokens = []
     event_time = 0
