@@ -201,7 +201,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
             
             tokens, controls = ops.anticipate(events, controls)
-            assert len(controls) != 0 # should have consumed all controls (because of padding)
+            assert len(controls) == 0 # should have consumed all controls (because of padding)
             
             tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
             concatenated_tokens.extend(tokens)
