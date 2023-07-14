@@ -217,8 +217,8 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                         assert ops.min_time(seq, seconds=False) == 0
                     except OverflowError:
                         # relativized time exceeds MAX_TIME
-                            tats[3] += 1
-                        continue
+                            stats[3] += 1
+                            continue
         
                     # if seq contains SEPARATOR, global controls describe the first sequence
                     seq.insert(0, z)
