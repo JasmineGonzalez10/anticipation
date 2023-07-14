@@ -215,7 +215,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
         
                         # should have relativized to zero
                         assert ops.min_time(seq, seconds=False) == 0
-                     except OverflowError:
+                    except OverflowError:
                         # relativized time exceeds MAX_TIME
                             tats[3] += 1
                         continue
