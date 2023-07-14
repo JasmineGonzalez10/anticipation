@@ -201,9 +201,9 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 assert len(controls) == 0 # should have consumed all controls (because of padding)
     
                 # try seeing which is longer
-                if(len_tokens_before > len(tokens)):
-                    concatenated_tokens.extend(numpy.zeros(10))
-                #elif(len_tokens_before < len(tokens)):
+                #if(len_tokens_before > len(tokens)):
+                    #concatenated_tokens.extend(numpy.zeros(10))
+                if(len_tokens_before < len(tokens)):
                     #concatenated_tokens.extend(numpy.ones(10))
                 else:
                     tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
