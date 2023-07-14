@@ -162,11 +162,6 @@ def distort(events):
     
     control_events = compound_to_events(compound)
     controls = [CONTROL_OFFSET + tok for tok in control_events]
-    
-    #for time, dur, note in zip(control_events[0::3],control_events[1::3],control_events[2::3]):
-        #assert(note not in [SEPARATOR, REST]) # shouldn't be in the sequence yet
-        # mark this event as a control
-        #controls.extend([CONTROL_OFFSET+time, CONTROL_OFFSET+dur, CONTROL_OFFSET+note])
         
     return controls
 
@@ -199,9 +194,15 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             all_truncations += truncations
             events = ops.pad(events, end_time)
             rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
+
+            len_tokens_before = len(controls) + len(events)
             
             tokens, controls = ops.anticipate(events, controls)
             assert len(controls) == 0 # should have consumed all controls (because of padding)
+
+            if(len_tokens_before != len(tokens)):
+                concatenated_tokens = np.zeros(10)
+                break
             
             tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
             concatenated_tokens.extend(tokens)
