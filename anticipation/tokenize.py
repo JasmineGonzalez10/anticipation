@@ -201,12 +201,13 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             assert len(controls) == 0 # should have consumed all controls (because of padding)
 
             # try seeing which is longer
-            '''if(len_tokens_before != len(tokens)):
-                concatenated_tokens = np.zeros(10)
-                break'''
-            
-            tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
-            concatenated_tokens.extend(tokens)
+            if(len_tokens_before > len(tokens)):
+                concatenated_tokens.extend(numpy.zeros(10))
+            elif(len_tokens_before < len(tokens)):
+                concatenated_tokens.extend(numpy.ones(10))
+            else:
+                tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
+                concatenated_tokens.extend(tokens)
     
             # write out full sequences to file
             while len(concatenated_tokens) >= EVENT_SIZE*M:
@@ -227,8 +228,6 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
     
                 # if seq contains SEPARATOR, global controls describe the first sequence
                 seq.insert(0, z)
-
-                seq = np.zeros(10)
     
                 outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
                 seqcount += 1
