@@ -161,14 +161,14 @@ def distort(events):
         compound[i*5 + 3] = 0
     
     control_events = compound_to_events(compound)
-    #controls = [CONTROL_OFFSET + tok for tok in control_events]
+    controls = [CONTROL_OFFSET + tok for tok in control_events]
     
     #for time, dur, note in zip(control_events[0::3],control_events[1::3],control_events[2::3]):
         #assert(note not in [SEPARATOR, REST]) # shouldn't be in the sequence yet
         # mark this event as a control
         #controls.extend([CONTROL_OFFSET+time, CONTROL_OFFSET+dur, CONTROL_OFFSET+note])
         
-    return control_events
+    return controls
 
 def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
     tokens = []
