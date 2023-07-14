@@ -134,7 +134,7 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
 
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
 
-def distort_midi(all_events):
+def distort(all_events):
     midi = events_to_midi(all_events)
 
   # setting the tempo & rhythm metrics
@@ -158,7 +158,7 @@ def distort_midi(all_events):
   for i in range(len(compound[3::5])):
     compound[i*5 + 3] = 0
 
-  control_events = compound_to_midi(midi_to_events(compound))
+  control_events = midi_to_events(compound_to_midi(compound))
   controls = [tok + CONTROL_OFFSET for tok in control_events]
       
   return controls
@@ -185,7 +185,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
 
             
             events = all_events.copy()
-            controls = distort_midi(all_events)
+            controls = distort(all_events)
                 
             z = ANTICIPATE
     
