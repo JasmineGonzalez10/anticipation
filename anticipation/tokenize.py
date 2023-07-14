@@ -188,9 +188,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             for k in range(augment_factor):
                 events = all_events.copy()
                 controls = distort(events)
-
-                if len(controls == 0):
-                    break
+                assert len(controls) != 0
                     
                 z = ANTICIPATE
         
