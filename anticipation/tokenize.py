@@ -148,8 +148,8 @@ def distort(events):
             break
     
     if tempo == 0:
-        print("error, no set tempo")
-        tempo = 500000
+        #print("error, no set tempo")
+        tempo = 500000 # default tempo value
     
     bpm = tempo2bpm(tempo)
     ticks_per_beat = midi.ticks_per_beat
