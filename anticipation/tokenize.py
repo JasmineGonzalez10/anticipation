@@ -139,12 +139,13 @@ def distort(events):
     midi = events_to_midi(events)
     
     # setting the tempo & rhythm metrics
+    tempo = 0
     for message in midi:
         if message.type == 'set_tempo':
             tempo = message.tempo
             break
     
-    if not tempo:
+    if tempo == 0:
         print("error, no set tempo")
     
     bpm = tempo2bpm(tempo)
