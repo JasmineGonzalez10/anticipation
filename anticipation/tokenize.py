@@ -158,7 +158,7 @@ def distort(events):
     
     for i in range(len(compound[0::5])):
         compound[i*5] = second2tick(((round((tick2second(compound[i*5], ticks_per_beat, tempo))*10))/10), ticks_per_beat, tempo)'''
-    
+    assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0   
     compound = events_to_compound(events)
 
     # getting all the notes in one octave
@@ -199,6 +199,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 ### RIGHT NOW ###
                 ## controls are not getting incorporated at all ##
                 events = all_events.copy()
+                assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
                 controls = distort(events)
                 assert len(controls) != 0
                     
