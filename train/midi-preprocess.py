@@ -5,7 +5,7 @@ from glob import glob
 
 from tqdm import tqdm
 
-from anticipation.convert import midi_to_compound
+from anticipation.convert import events_to_midi,midi_to_events, midi_to_compound, compound_to_midi
 from anticipation.config import PREPROC_WORKERS
 
 
