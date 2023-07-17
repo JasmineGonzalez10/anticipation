@@ -138,7 +138,7 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
 
 def distort(events):
-    midi = events_to_midi(events)
+    '''midi = events_to_midi(events)
     
     # setting the tempo & rhythm metrics
     tempo = 0
@@ -157,11 +157,15 @@ def distort(events):
     compound = midi_to_compound(midi)
     
     for i in range(len(compound[0::5])):
-        compound[i*5] = second2tick(((round((tick2second(compound[i*5], ticks_per_beat, tempo))*10))/10), ticks_per_beat, tempo)
+        compound[i*5] = second2tick(((round((tick2second(compound[i*5], ticks_per_beat, tempo))*10))/10), ticks_per_beat, tempo)'''
     
+    compound = events_to_compound(events)
+
+    # getting all the notes in one octave
     for i in range(len(compound[2::5])):
         compound[i*5 + 2] = (compound[i*5 + 2] % 12) + 60
-    
+
+    # getting all the instruments to piano
     for i in range(len(compound[3::5])):
         compound[i*5 + 3] = 0
     
