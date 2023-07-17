@@ -5,7 +5,9 @@ Top-level functions for preprocessing data to be used for training.
 from tqdm import tqdm
 
 import numpy as np
+import mido
 
+from mido import tick2second, second2tick, bpm2tempo, tempo2bpm, MidiFile
 from anticipation import ops
 from anticipation.config import *
 from anticipation.vocab import *
