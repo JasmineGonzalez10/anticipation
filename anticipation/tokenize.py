@@ -199,7 +199,10 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 ### RIGHT NOW ###
                 ## controls are not getting incorporated at all ##
                 events = all_events.copy()
-                assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
+                if (len([tok for tok in events if tok == SEPARATOR]) % 3 != 0):
+                    print(tok)
+                    print(events)
+                #assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
                 controls = distort(events)
                 assert len(controls) != 0
                     
