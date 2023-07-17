@@ -10,6 +10,7 @@ from anticipation import ops
 from anticipation.config import *
 from anticipation.vocab import *
 from anticipation.convert import compound_to_events, midi_to_interarrival
+from anticipation.convert import events_to_midi,midi_to_events, midi_to_compound, compound_to_midi
 
 
 def extract_spans(all_events, rate):
