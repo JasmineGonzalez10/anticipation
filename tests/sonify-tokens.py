@@ -32,9 +32,9 @@ if __name__ == '__main__':
                         tokens.remove(tok)
 
                 # run below to hear distorted midi
-                for tok in tokens:
-                    if tok < CONTROL_OFFSET and tok != SEPARATOR:
-                        tokens.remove(tok)
+                #for tok in tokens:
+                    #if tok < CONTROL_OFFSET and tok != SEPARATOR:
+                        #tokens.remove(tok)
                 
                 mid = events_to_midi(tokens)
             else: # it's the interarrival tokenization
