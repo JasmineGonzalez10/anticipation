@@ -231,6 +231,8 @@ def compound_to_midi(tokens, debug=False):
                         idx = 9
                         message = mido.Message('program_change', channel=idx, program=0)
                     else:
+                        if idx > 15:
+                            print(idx)
                         message = mido.Message('program_change', channel=idx, program=instrument)
                     track.append(message)
                     num_tracks += 1
@@ -316,10 +318,14 @@ def events_to_compound(tokens, debug=False):
             tokens[3*j] += offset
 
     # strip sequence separators
-    assert len([tok for tok in tokens if tok == SEPARATOR]) % 3 == 0
+    #assert len([tok for tok in tokens if tok == SEPARATOR]) % 3 == 0
+    if len([tok for tok in tokens if tok == SEPARATOR]) % 3 != 0:
+        return []
     tokens = [tok for tok in tokens if tok != SEPARATOR]
 
-    assert len(tokens) % 3 == 0
+    #assert len(tokens) % 3 == 0
+    if len(tokens) % 3 != 0:
+        return []
     out = 5*(len(tokens)//3)*[0]
     out[0::5] = tokens[0::3]
     out[1::5] = tokens[1::3]
@@ -327,7 +333,9 @@ def events_to_compound(tokens, debug=False):
     out[3::5] = [tok//2**7 for tok in tokens[2::3]]
     out[4::5] = (len(tokens)//3)*[72] # default velocity
 
-    assert max(out[1::5]) < MAX_DUR
+    #assert max(out[1::5]) < MAX_DUR
+    if max(out[1::5]) > MAX_DUR:
+        return []
     assert max(out[2::5]) < MAX_PITCH
     assert max(out[3::5]) < MAX_INSTR
     assert all(tok >= 0 for tok in out)
