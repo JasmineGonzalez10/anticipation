@@ -23,18 +23,18 @@ if __name__ == '__main__':
                 break
 
             tokens = [int(token) for token in line.split()]
-            if tokens[0] in [AUTOREGRESS, ANTICIPATE]:
-                tokens = tokens[1:] # strip control codes
+            #if tokens[0] in [AUTOREGRESS, ANTICIPATE]:
+                #tokens = tokens[1:] # strip control codes
                 
-                # run below to hear original midi
-                for tok in tokens:
-                    if tok >= CONTROL_OFFSET and tok != SEPARATOR:
-                        tokens.remove(tok)
+            # run below to hear original midi
+            for tok in tokens:
+                if tok >= CONTROL_OFFSET and tok != SEPARATOR:
+                    tokens.remove(tok)
 
-                # run below to hear distorted midi
-                #for tok in tokens:
-                    #if tok < CONTROL_OFFSET and tok != SEPARATOR:
-                        #tokens.remove(tok)
+            # run below to hear distorted midi
+            #for tok in tokens:
+                #if tok < CONTROL_OFFSET and tok != SEPARATOR:
+                    #tokens.remove(tok)
                 
                 mid = events_to_midi(tokens)
             else: # it's the interarrival tokenization
