@@ -38,9 +38,9 @@ if __name__ == '__main__':
                 #else:
                     #tok -= CONTROL_OFFSET
                 
-                mid = events_to_midi(tokens)
-            else: # it's the interarrival tokenization
-                mid = interarrival_to_midi(tokens)
+            mid = events_to_midi(tokens)
+            #else: # it's the interarrival tokenization
+                #mid = interarrival_to_midi(tokens)
 
             mid.save(f'output/{Path(args.filename).stem}{i}.mid')
             print(f'{i} Tokenized MIDI Length: {mid.length} seconds ({len(tokens)} tokens)')
