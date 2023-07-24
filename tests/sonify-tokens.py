@@ -35,6 +35,8 @@ if __name__ == '__main__':
             #for tok in tokens:
                 #if tok < CONTROL_OFFSET and tok != SEPARATOR:
                     #tokens.remove(tok)
+                #else:
+                    #tok -= CONTROL_OFFSET
                 
                 mid = events_to_midi(tokens)
             else: # it's the interarrival tokenization
