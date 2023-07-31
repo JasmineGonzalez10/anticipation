@@ -11,7 +11,7 @@ from mido import tick2second, second2tick, bpm2tempo, tempo2bpm, MidiFile
 from anticipation import ops
 from anticipation.config import *
 from anticipation.vocab import *
-from anticipation.convert import compound_to_events, midi_to_interarrival
+from anticipation.convert import compound_to_events, midi_to_interarrival, interarrival_to_midi
 from anticipation.convert import events_to_midi, midi_to_events, midi_to_compound, compound_to_midi, events_to_compound
 
 
@@ -137,17 +137,22 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
 
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
 
+def add_noise(controls):
+    controls = midi_to_interarrival(events_to_midi(controls))
+
+    rv = gamma.rvs(0.5, loc=0.5)
+    for i in range(len(controls[1::3])):
+        controls[i*3 + 1] = round(controls[i*3 + 1] * rv)
+    
+    controls = midi_to_events(interarrival_to_midi(controls))
+  
+    return controls
+
 def distort(controls):
     assert len([tok for tok in controls if tok == SEPARATOR]) % 3 == 0
     
-    #CONVERT TO INTERARRIVAL TIMES AND ADD NOISE HERE
-    #controls_ia = arrival_to_interarrival(controls)
-    #controls_noisy = add_noise(controls_ia)
-    #controls__a = interarrival_to_arrival(controls_noisy)
-    #CHANGE TO CONTROLS_A FOR NOISE TESTING for compound conversion
-
-    #FINAL VERSION
-    #add_noise(controls)
+    # adding noise from a gamma distribution to the controls
+    controls = add_noise(controls)
 
     compound = events_to_compound(controls) 
     if len(compound) == 0:
@@ -163,7 +168,6 @@ def distort(controls):
 
     result_controls = compound_to_events(compound)
     result_controls = [CONTROL_OFFSET + tok for tok in result_controls]
-    #assert [tok > CONTROL_OFFSET for tok in result_controls]
 
     return result_controls
 
