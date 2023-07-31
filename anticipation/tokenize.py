@@ -143,10 +143,9 @@ def add_noise(controls):
 
     #we want alpha = beta
     #smaller alpha & beta will have greater variance
-    #greater alpha & beta will have smaller variance 
-    rv = gamma.rvs(0.5, loc=0.5)
+    #greater alpha & beta will have smaller variance
     for i in range(len(controls_ia[1::3])):
-        controls_ia[i*3 + 1] = round(controls_ia[i*3 + 1] * rv)
+        controls_ia[i*3 + 1] = round(controls_ia[i*3 + 1] * (gamma.rvs(0.5, loc=0.5)))
         
     controls_midi = interarrival_to_midi(controls_ia)
     controls = midi_to_events(controls_midi)
