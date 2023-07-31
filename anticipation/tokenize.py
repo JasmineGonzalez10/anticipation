@@ -138,13 +138,18 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
 
 def add_noise(controls):
-    controls = midi_to_interarrival(events_to_midi(controls))
+    controls_midi = events_to_midi(controls) 
+    controls_ia = midi_to_interarrival(controls_midi)
 
+    #we want alpha = beta
+    #smaller alpha & beta will have greater variance
+    #greater alpha & beta will have smaller variance 
     rv = gamma.rvs(0.5, loc=0.5)
-    for i in range(len(controls[1::3])):
-        controls[i*3 + 1] = round(controls[i*3 + 1] * rv)
-    
-    controls = midi_to_events(interarrival_to_midi(controls))
+    for i in range(len(controls_ia[1::3])):
+        controls_ia[i*3 + 1] = round(controls_ia[i*3 + 1] * rv)
+        
+    controls_midi = interarrival_to_midi(controls_ia)
+    controls = midi_to_events(controls_midi)
   
     return controls
 
