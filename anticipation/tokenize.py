@@ -71,7 +71,7 @@ def extract_instruments(all_events, instruments):
             controls.extend([CONTROL_OFFSET+time, CONTROL_OFFSET+dur, CONTROL_OFFSET+note])
         else:
             events.extend([time, dur, note])
-
+  
     return events, controls
 
 
@@ -137,48 +137,37 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
 
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
 
-def distort(events):
-    assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
-    compound = events_to_compound(events)
+def distort(controls):
+    assert len([tok for tok in controls if tok == SEPARATOR]) % 3 == 0
+    for tok in controls:
+      if tok < CONTROL_OFFSET:
+        print("uh oh! control is not allocated!")
+    
+    #CONVERT TO INTERARRIVAL TIMES AND ADD NOISE HERE
+    #controls_ia = arrival_to_interarrival(controls)
+    #controls_noisy = add_noise(controls_ia)
+    #controls__a = interarrival_to_arrival(controls_noisy)
+    #CHANGE TO CONTROLS_A FOR NOISE TESTING for compound conversion
+
+    #FINAL VERSION
+    #add_noise(controls)
+
+    compound = events_to_compound(controls) 
     if len(compound) == 0:
         return []
-    '''if max(compound[1::5]) > MAX_DUR:
-        return []
-    if len([tok for tok in events if tok == SEPARATOR]) % 3 != 0:
-        return []
-    if len(events) % 3 != 0:
-        return []'''
-    ''' midi = events_to_midi(events)
 
-    # setting the tempo & rhythm metrics
-    tempo = 0
-    for message in midi:
-        if message.type == 'set_tempo':
-            tempo = message.tempo
-            break
-
-    if tempo == 0:
-        #print("error, no set tempo")
-        tempo = 500000
-
-    bpm = tempo2bpm(tempo)
-    ticks_per_beat = midi.ticks_per_beat
-
-    compound = midi_to_compound(midi)
-
-    for i in range(len(compound[0::5])):
-        compound[i*5] = second2tick(((round((tick2second(compound[i*5], ticks_per_beat, tempo))*10))/10), ticks_per_beat, tempo) '''
-
+    # moving all notes to be in octave C4-C5
     for i in range(len(compound[2::5])):
         compound[i*5 + 2] = (compound[i*5 + 2] % 12) + 60
 
+    # turning all instruments to piano
     for i in range(len(compound[3::5])):
         compound[i*5 + 3] = 0
 
-    control_events = compound_to_events(compound)
-    controls = [CONTROL_OFFSET + tok for tok in control_events]
+    result_controls = compound_to_events(compound)
+    assert [tok > CONTROL_OFFSET for tok in result_controls]
 
-    return controls
+    return result_controls
 
 def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
     error_count = 0
@@ -204,55 +193,67 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
             for k in range(augment_factor):
 
                 events = all_events.copy()
+
                 if len([tok for tok in events if tok == SEPARATOR]) % 3 != 0:
                     error_count += 1
                     continue
-                else:
-                    controls = distort(events)
-                if len(controls) == 0:
-                    error_count += 1
-                    print("error found in event sequence | error count: ", error_count)
-                    continue
-                #assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
-                #controls = distort(events)
-                assert len(controls) != 0
 
-                z = ANTICIPATE
-
-                all_truncations += truncations
-                events = ops.pad(events, end_time)
-                rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
-                tokens, controls = ops.anticipate(events, controls)
-                assert len(controls) == 0 # should have consumed all controls (because of padding)
-                tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
-                concatenated_tokens.extend(tokens)
-
-                # write out full sequences to file
-                while len(concatenated_tokens) >= EVENT_SIZE*M:
-                    seq = concatenated_tokens[0:EVENT_SIZE*M]
-                    concatenated_tokens = concatenated_tokens[EVENT_SIZE*M:]
-
-                    try:
-                        # relativize time to the sequence
-                        seq = ops.translate(
-                                seq, -ops.min_time(seq, seconds=False), seconds=False)
-
-                        # should have relativized to zero
-                        assert ops.min_time(seq, seconds=False) == 0
-                    except OverflowError:
-                        # relativized time exceeds MAX_TIME
-                            stats[3] += 1
+                for instr in instruments:
+                    if instr >= 24 and instr <= 79:
+                        controls_discarded_events, controls = extract_instruments(events, [instr])
+                        if len([tok for tok in controls if tok == SEPARATOR]) % 3 != 0:
+                            error_count += 1
                             continue
+                        
+                        else:
+                            controls = distort(controls)
+                            if len(controls) == 0:
+                                error_count += 1
+                                print("error found in event sequence | error count: ", error_count)
+                                continue
+                            #assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
+                            #controls = distort(events)
+                            assert len(controls) != 0
 
-                    # if seq contains SEPARATOR, global controls describe the first sequence
-                    seq.insert(0, z)
+                            z = ANTICIPATE
 
-                    outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
-                    seqcount += 1
+                            all_truncations += truncations
+                            events = ops.pad(events, end_time)
+                            rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
+                            tokens, controls = ops.anticipate(events, controls)
+                            assert len(controls) == 0 # should have consumed all controls (because of padding)
+                            tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
+                            concatenated_tokens.extend(tokens)
 
-                    # grab the current augmentation controls if we didn't already
-                    z = ANTICIPATE
-    print(error_count)
+                            # write out full sequences to file
+                            while len(concatenated_tokens) >= EVENT_SIZE*M:
+                                seq = concatenated_tokens[0:EVENT_SIZE*M]
+                                concatenated_tokens = concatenated_tokens[EVENT_SIZE*M:]
+
+                                try:
+                                    # relativize time to the sequence
+                                    seq = ops.translate(
+                                            seq, -ops.min_time(seq, seconds=False), seconds=False)
+
+                                    # should have relativized to zero
+                                    assert ops.min_time(seq, seconds=False) == 0
+                                except OverflowError:
+                                    # relativized time exceeds MAX_TIME
+                                        stats[3] += 1
+                                        continue
+
+                                # if seq contains SEPARATOR, global controls describe the first sequence
+                                seq.insert(0, z)
+
+                                outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
+                                seqcount += 1
+
+                                # grab the current augmentation controls if we didn't already
+                                z = ANTICIPATE
+                    else:
+                      continue
+    print("num errors: ", error_count)
+    print("num sequences: ", seqcount)
 
 
     if debug:
