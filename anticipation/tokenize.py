@@ -139,9 +139,6 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
 
 def distort(controls):
     assert len([tok for tok in controls if tok == SEPARATOR]) % 3 == 0
-    for tok in controls:
-      if tok < CONTROL_OFFSET:
-        print("uh oh! control is not allocated!")
     
     #CONVERT TO INTERARRIVAL TIMES AND ADD NOISE HERE
     #controls_ia = arrival_to_interarrival(controls)
@@ -165,7 +162,8 @@ def distort(controls):
         compound[i*5 + 3] = 0
 
     result_controls = compound_to_events(compound)
-    assert [tok > CONTROL_OFFSET for tok in result_controls]
+    result_controls = [CONTROL_OFFSET + tok for tok in result_controls]
+    #assert [tok > CONTROL_OFFSET for tok in result_controls]
 
     return result_controls
 
