@@ -5,8 +5,9 @@ Top-level functions for preprocessing data to be used for training.
 from tqdm import tqdm
 
 import numpy as np
-import mido
+import mido, scipy
 
+from scipy.stats import gamma
 from mido import tick2second, second2tick, bpm2tempo, tempo2bpm, MidiFile
 from anticipation import ops
 from anticipation.config import *
@@ -137,19 +138,56 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
 
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
 
-def add_noise(controls):
-    controls_midi = events_to_midi(controls) 
-    controls_ia = midi_to_interarrival(controls_midi)
+def find_element_index(arr, element):
+    indices = np.where(arr == element)[0]
+    if indices.size > 0:
+        return indices[0]  # Return the first occurrence of the element
+    else:
+        return -1 # Return -1 if element does not exist in arr
 
-    #we want alpha = beta
+def set_time_diffs(control_tokens, begin, sep):
+    time_tokens = control_tokens[begin:sep:3]
+    if len(time_tokens) >= 2:
+        diffs = time_tokens[1:] - time_tokens[:-1]
+        time_tokens[1:] = diffs
+    if len(time_tokens) >= 1:
+        if begin == 1:
+            time_tokens[0] = UNK
+        else:
+            time_tokens[0] = time_tokens[0]
+        control_tokens[begin:sep:3] = time_tokens
+
+def arrival_to_interarrival(control_tokens):
+    begin = 1
+    sep = find_element_index(control_tokens[begin:], SEPARATOR)
+    while sep != -1:
+        sep += begin
+        set_time_diffs(control_tokens, begin, sep)
+        begin = sep + 3
+        sep = find_element_index(control_tokens[begin:], SEPARATOR)
+    # last section after SEP
+    sep = len(control_tokens)
+    set_time_diffs(control_tokens, begin, sep)
+
+def interarrival_to_arrival(control_tokens):
+    for i in range(len(control_tokens[1::3])):
+      if i != 0:
+        #current time = last absolute time + interarrival time for current note
+        #assumes first interarrival time is really just an arrival time
+        control_tokens[3*i+1] = control_tokens[3*(i - 1) + 1] + control_tokens[3*i+1]
+    return control_tokens
+
+def add_noise(controls):
+    controls = arrival_to_interarrival(controls)
+
+    #we want alpha = beta so mean is 1 (alpha/beta)
     #smaller alpha & beta will have greater variance
     #greater alpha & beta will have smaller variance
-    for i in range(len(controls_ia[1::3])):
-        controls_ia[i*3 + 1] = round(controls_ia[i*3 + 1] * (gamma.rvs(0.5, loc=0.5)))
-        
-    controls_midi = interarrival_to_midi(controls_ia)
-    controls = midi_to_events(controls_midi)
-  
+    #random variable whose mean is one (range from 0 to infinity)
+    for i in range(len(controls[1::3])):
+        controls[i*3 + 1] = round(controls[i*3 + 1] * (gamma.rvs(0.5, loc=0.5)))
+    
+    controls = interarrival_to_arrival(controls)
     return controls
 
 def distort(controls):
