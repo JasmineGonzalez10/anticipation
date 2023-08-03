@@ -138,25 +138,6 @@ def tokenize_ia(datafiles, output, augment_factor, idx=0, debug=False):
 
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
 
-def find_element_index(arr, element):
-    indices = np.where(arr == element)[0]
-    if indices.size > 0:
-        return indices[0]  # Return the first occurrence of the element
-    else:
-        return -1 # Return -1 if element does not exist in arr
-
-def set_time_diffs(control_tokens, begin, sep):
-    time_tokens = control_tokens[begin:sep:3]
-    if len(time_tokens) >= 2:
-        diffs = time_tokens[1:] - time_tokens[:-1]
-        time_tokens[1:] = diffs
-    if len(time_tokens) >= 1:
-        if begin == 1:
-            time_tokens[0] = UNK
-        else:
-            time_tokens[0] = time_tokens[0]
-        control_tokens[begin:sep:3] = time_tokens
-
 def arrival_to_interarrival(control_tokens):
     time_tokens = control_tokens[0::3]
     if len(time_tokens) >= 2:
