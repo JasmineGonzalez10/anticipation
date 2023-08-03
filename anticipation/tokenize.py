@@ -248,12 +248,13 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                         if len([tok for tok in controls if tok == SEPARATOR]) % 3 != 0:
                             error_count += 1
                             continue
-                        
+
                         else:
-                            controls = distort(controls)
+                            noise_level = 0.10501
+                            controls = distort(controls, noise_level)
                             if len(controls) == 0:
                                 error_count += 1
-                                print("error found in event sequence | error count: ", error_count)
+                                #print("error found in event sequence | error count: ", error_count)
                                 continue
                             #assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
                             #controls = distort(events)
@@ -296,8 +297,8 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                 z = ANTICIPATE
                     else:
                       continue
-    print("num errors: ", error_count)
-    print("num sequences: ", seqcount)
+    #print("num errors: ", error_count)
+    #print("num sequences: ", seqcount)
 
 
     if debug:
