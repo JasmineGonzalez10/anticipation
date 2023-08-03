@@ -158,45 +158,64 @@ def set_time_diffs(control_tokens, begin, sep):
         control_tokens[begin:sep:3] = time_tokens
 
 def arrival_to_interarrival(control_tokens):
-    begin = 1
-    sep = find_element_index(control_tokens[begin:], SEPARATOR)
-    while sep != -1:
-        sep += begin
-        set_time_diffs(control_tokens, begin, sep)
-        begin = sep + 3
-        sep = find_element_index(control_tokens[begin:], SEPARATOR)
-    # last section after SEP
-    sep = len(control_tokens)
-    set_time_diffs(control_tokens, begin, sep)
-
-def interarrival_to_arrival(control_tokens):
-    for i in range(len(control_tokens[1::3])):
-      if i != 0:
-        #current time = last absolute time + interarrival time for current note
-        #assumes first interarrival time is really just an arrival time
-        control_tokens[3*i+1] = control_tokens[3*(i - 1) + 1] + control_tokens[3*i+1]
+    time_tokens = control_tokens[0::3]
+    if len(time_tokens) >= 2:
+        firsts = time_tokens[1:]
+        lasts = time_tokens[:-1]
+        diffs = []
+        for i in range(len(time_tokens) - 1):
+            diffs.append(firsts[i] - lasts[i])
+        time_tokens[1:] = diffs
+    #else:
+        #print("unexpected: token sequence has length less than 2")
+    control_tokens[0::3] = time_tokens
     return control_tokens
 
-def add_noise(controls):
-    controls = arrival_to_interarrival(controls)
+def interarrival_to_arrival(control_tokens):
+    arrival_tokens = control_tokens[0::3]
+    firsts = arrival_tokens[1:]
+    lasts = arrival_tokens[:-1]
+    absolutes = []
+    for i in range(len(arrival_tokens) - 1):
+      sum = 0
+      for k in range(i):
+          sum += lasts[k]
+      absolute = firsts[i] + lasts[i] + sum
+      absolutes.append(absolute)
+    arrival_tokens[1:] = absolutes
+    arrival_tokens[0] = arrival_tokens[0]
+    control_tokens[0::3] = arrival_tokens
+    return control_tokens
+
+def solve_for_log_normal_parameters(mean, variance):
+        sigma2 = log(variance/mean**2 + 1)
+        mu = log(mean) - sigma2/2
+        return (mu, sigma2)
+
+def add_noise(midi_events, noise_level=0.00001):
+    controls = arrival_to_interarrival(midi_events)
+    assert len([tok for tok in controls if tok == SEPARATOR]) % 3 == 0
+    
+    mu, sigma = solve_for_log_normal_parameters(1, noise_level)
 
     #we want alpha = beta so mean is 1 (alpha/beta)
     #smaller alpha & beta will have greater variance
     #greater alpha & beta will have smaller variance
     #random variable whose mean is one (range from 0 to infinity)
-    for i in range(len(controls[1::3])):
-        controls[i*3 + 1] = round(controls[i*3 + 1] * (gamma.rvs(0.5, loc=0.5)))
-    
+    for i in range(len(controls)//3):
+        controls[i*3] = round(controls[i*3] * (lognorm.rvs(s=sigma, scale=np.exp(mu))))
+
     controls = interarrival_to_arrival(controls)
     return controls
 
-def distort(controls):
+def distort(controls, noise_level):
     assert len([tok for tok in controls if tok == SEPARATOR]) % 3 == 0
-    
-    # adding noise from a gamma distribution to the controls
-    controls = add_noise(controls)
 
-    compound = events_to_compound(controls) 
+    # adding noise from a log normal distribution to the controls
+    controls = [tok - CONTROL_OFFSET for tok in controls]
+    controls = add_noise(controls, noise_level)
+
+    compound = events_to_compound(controls)
     if len(compound) == 0:
         return []
 
