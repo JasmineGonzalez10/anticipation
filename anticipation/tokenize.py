@@ -3,10 +3,12 @@ Top-level functions for preprocessing data to be used for training.
 """
 
 from tqdm import tqdm
-
+import random
 import numpy as np
 import mido, scipy
 
+from numpy import log
+from scipy.stats import lognorm
 from scipy.stats import gamma
 from mido import tick2second, second2tick, bpm2tempo, tempo2bpm, MidiFile
 from anticipation import ops
