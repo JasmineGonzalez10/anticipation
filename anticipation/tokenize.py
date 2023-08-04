@@ -6,6 +6,7 @@ from tqdm import tqdm
 import random
 import numpy as np
 import mido, scipy
+import copy
 
 from numpy import log
 from scipy.stats import lognorm
@@ -166,7 +167,7 @@ def interarrival_to_arrival(control_tokens):
       absolute = firsts[i] + lasts[i] + sum
       absolutes.append(absolute)
     arrival_tokens[1:] = absolutes
-    #arrival_tokens[0] = arrival_tokens[0]
+    arrival_tokens[0] = arrival_tokens[0]
     control_tokens[0::3] = arrival_tokens
     return control_tokens
 
@@ -249,13 +250,14 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
 
                 for instr in instruments:
                     if instr >= 24 and instr <= 79:
-                        controls_discarded_events, controls = extract_instruments(events, [instr])
-                        if len([tok for tok in controls if tok == SEPARATOR]) % 3 != 0:
+                        controls_discarded_events, controls_orig = extract_instruments(events, [instr])
+                        if len([tok for tok in controls_orig if tok == SEPARATOR]) % 3 != 0:
                             error_count += 1
                             continue
 
                         else:                            
                             for multiple in range(0, 35):
+                                controls = copy.copy(controls_orig)
                                 noise_level = 0.01001 * multiple
                                 controls = distort(controls, noise_level)
                                 if len(controls) == 0:
