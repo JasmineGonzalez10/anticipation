@@ -179,7 +179,7 @@ def add_noise(midi_events, noise_level=0.00001):
     controls = arrival_to_interarrival(midi_events)
     assert len([tok for tok in controls if tok == SEPARATOR]) % 3 == 0
     
-    if noise_level = 0:
+    if noise_level == 0:
         noise_level = 0.00001
     
     mu, sigma = solve_for_log_normal_parameters(1, noise_level)
