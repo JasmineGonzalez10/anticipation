@@ -251,52 +251,53 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                             error_count += 1
                             continue
 
-                        else:
-                            noise_level = 0.10501
-                            controls = distort(controls, noise_level)
-                            if len(controls) == 0:
-                                error_count += 1
-                                #print("error found in event sequence | error count: ", error_count)
-                                continue
-                            #assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
-                            #controls = distort(events)
-                            assert len(controls) != 0
-
-                            z = ANTICIPATE
-
-                            all_truncations += truncations
-                            events = ops.pad(events, end_time)
-                            rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
-                            tokens, controls = ops.anticipate(events, controls)
-                            assert len(controls) == 0 # should have consumed all controls (because of padding)
-                            tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
-                            concatenated_tokens.extend(tokens)
-
-                            # write out full sequences to file
-                            while len(concatenated_tokens) >= EVENT_SIZE*M:
-                                seq = concatenated_tokens[0:EVENT_SIZE*M]
-                                concatenated_tokens = concatenated_tokens[EVENT_SIZE*M:]
-
-                                try:
-                                    # relativize time to the sequence
-                                    seq = ops.translate(
-                                            seq, -ops.min_time(seq, seconds=False), seconds=False)
-
-                                    # should have relativized to zero
-                                    assert ops.min_time(seq, seconds=False) == 0
-                                except OverflowError:
-                                    # relativized time exceeds MAX_TIME
-                                        stats[3] += 1
-                                        continue
-
-                                # if seq contains SEPARATOR, global controls describe the first sequence
-                                seq.insert(0, z)
-
-                                outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
-                                seqcount += 1
-
-                                # grab the current augmentation controls if we didn't already
+                        else:                            
+                            for multiple in range(0, 35):
+                                noise_level = 0.01001 * multiple
+                                controls = distort(controls, noise_level)
+                                if len(controls) == 0:
+                                    error_count += 1
+                                    #print("error found in event sequence | error count: ", error_count)
+                                    continue
+                                #assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
+                                #controls = distort(events)
+                                assert len(controls) != 0
+    
                                 z = ANTICIPATE
+    
+                                all_truncations += truncations
+                                events = ops.pad(events, end_time)
+                                rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
+                                tokens, controls = ops.anticipate(events, controls)
+                                assert len(controls) == 0 # should have consumed all controls (because of padding)
+                                tokens[0:0] = [SEPARATOR, SEPARATOR, SEPARATOR]
+                                concatenated_tokens.extend(tokens)
+    
+                                # write out full sequences to file
+                                while len(concatenated_tokens) >= EVENT_SIZE*M:
+                                    seq = concatenated_tokens[0:EVENT_SIZE*M]
+                                    concatenated_tokens = concatenated_tokens[EVENT_SIZE*M:]
+    
+                                    try:
+                                        # relativize time to the sequence
+                                        seq = ops.translate(
+                                                seq, -ops.min_time(seq, seconds=False), seconds=False)
+    
+                                        # should have relativized to zero
+                                        assert ops.min_time(seq, seconds=False) == 0
+                                    except OverflowError:
+                                        # relativized time exceeds MAX_TIME
+                                            stats[3] += 1
+                                            continue
+    
+                                    # if seq contains SEPARATOR, global controls describe the first sequence
+                                    seq.insert(0, z)
+    
+                                    outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
+                                    seqcount += 1
+    
+                                    # grab the current augmentation controls if we didn't already
+                                    z = ANTICIPATE
                     else:
                       continue
     #print("num errors: ", error_count)
