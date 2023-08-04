@@ -166,7 +166,7 @@ def interarrival_to_arrival(control_tokens):
       absolute = firsts[i] + lasts[i] + sum
       absolutes.append(absolute)
     arrival_tokens[1:] = absolutes
-    arrival_tokens[0] = arrival_tokens[0]
+    #arrival_tokens[0] = arrival_tokens[0]
     control_tokens[0::3] = arrival_tokens
     return control_tokens
 
