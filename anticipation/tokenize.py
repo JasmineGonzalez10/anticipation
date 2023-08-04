@@ -238,7 +238,6 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 continue
 
             instruments = list(ops.get_instruments(all_events).keys())
-            end_time = ops.max_time(all_events, seconds=False)
 
             for k in range(augment_factor):
 
@@ -267,9 +266,10 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                 #assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
                                 #controls = distort(events)
                                 assert len(controls) != 0
+                                combined_events = copy.copy(controls) + copy.copy(events)
     
                                 z = ANTICIPATE
-    
+                                end_time = ops.max_time(combined_events, seconds=False)
                                 all_truncations += truncations
                                 events = ops.pad(events, end_time)
                                 rest_count += sum(1 if tok == REST else 0 for tok in events[2::3])
