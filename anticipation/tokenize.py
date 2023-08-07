@@ -277,9 +277,10 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                     while len(instr_list) < NUM_INSTRS:
                                         instr_list.append(55026)
                                     random.shuffle(instr_list)
-                                    instr_index = instr_list.index(instr)
-                                    if instr_index != 0:
-                                        instr_list[0], instr_list[instr_index] = instr_list[instr_index], instr_list[0]
+                                    if instr in instr_list:
+                                        instr_index = instr_list.index(instr)
+                                        if instr_index != 0:
+                                            instr_list[0], instr_list[instr_index] = instr_list[instr_index], instr_list[0]
 
                                     seq = concatenated_tokens[0:EVENT_SIZE*M - NUM_INSTRS]
                                     concatenated_tokens = concatenated_tokens[EVENT_SIZE*M - NUM_INSTRS:]
