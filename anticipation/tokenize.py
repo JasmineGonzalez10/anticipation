@@ -1,6 +1,7 @@
 """
 Top-level functions for preprocessing data to be used for training.
 """
+NUM_INSTRS = 16
 
 from tqdm import tqdm
 import random
@@ -150,8 +151,6 @@ def arrival_to_interarrival(control_tokens):
         for i in range(len(time_tokens) - 1):
             diffs.append(firsts[i] - lasts[i])
         time_tokens[1:] = diffs
-    #else:
-        #print("unexpected: token sequence has length less than 2")
     control_tokens[0::3] = time_tokens
     return control_tokens
 
@@ -220,7 +219,6 @@ def distort(controls, noise_level):
     return result_controls
 
 def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
-    error_count = 0
     tokens = []
     all_truncations = 0
     seqcount = rest_count = 0
@@ -244,14 +242,12 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 events = all_events.copy()
 
                 if len([tok for tok in events if tok == SEPARATOR]) % 3 != 0:
-                    error_count += 1
                     continue
 
                 for instr in instruments:
                     if instr >= 24 and instr <= 79:
                         controls_discarded_events, controls_orig = extract_instruments(events, [instr])
                         if len([tok for tok in controls_orig if tok == SEPARATOR]) % 3 != 0:
-                            error_count += 1
                             continue
 
                         else:                            
@@ -260,11 +256,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                 noise_level = 0.01001 * multiple
                                 controls = distort(controls, noise_level)
                                 if len(controls) == 0:
-                                    error_count += 1
-                                    #print("error found in event sequence | error count: ", error_count)
                                     continue
-                                #assert len([tok for tok in events if tok == SEPARATOR]) % 3 == 0
-                                #controls = distort(events)
                                 assert len(controls) != 0
                                 combined_events = copy.copy(controls) + copy.copy(events)
     
@@ -279,9 +271,19 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                 concatenated_tokens.extend(tokens)
     
                                 # write out full sequences to file
-                                while len(concatenated_tokens) >= EVENT_SIZE*M:
-                                    seq = concatenated_tokens[0:EVENT_SIZE*M]
-                                    concatenated_tokens = concatenated_tokens[EVENT_SIZE*M:]
+                                while len(concatenated_tokens) >= EVENT_SIZE*M - NUM_INSTRS:
+                                    instr_list = list(ops.get_instruments(concatenated_tokens[0:EVENT_SIZE*M -             
+                                        NUM_INSTRS]).keys())
+                                    while len(instr_list) < NUM_INSTRS:
+                                        instr_list.append(55026)
+                                    random.shuffle(instr_list)
+                                    instr_index = instr_list.index(instr)
+                                    if instr_index != 0:
+                                        instr_list[0], instr_list[instr_index] = instr_list[instr_index],        
+                                            instr_list[0]
+
+                                    seq = concatenated_tokens[0:EVENT_SIZE*M - NUM_INSTRS]
+                                    concatenated_tokens = concatenated_tokens[EVENT_SIZE*M - NUM_INSTRS:]
     
                                     try:
                                         # relativize time to the sequence
@@ -296,7 +298,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                             continue
     
                                     # if seq contains SEPARATOR, global controls describe the first sequence
-                                    seq.insert(0, z)
+                                    seq.insert(0, instr_list)
     
                                     outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
                                     seqcount += 1
@@ -305,8 +307,6 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                     z = ANTICIPATE
                     else:
                       continue
-    #print("num errors: ", error_count)
-    #print("num sequences: ", seqcount)
 
 
     if debug:
