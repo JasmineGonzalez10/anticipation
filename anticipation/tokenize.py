@@ -298,7 +298,8 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                             continue
     
                                     # if seq contains SEPARATOR, global controls describe the first sequence
-                                    seq.insert(0, instr_list)
+                                    for i in range(NUM_INSTRS):
+                                        seq.insert(0, instr_list[NUM_INSTRS - i - 1])
     
                                     outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
                                     seqcount += 1
