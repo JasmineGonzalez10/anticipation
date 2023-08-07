@@ -275,8 +275,11 @@ def translate(tokens, dt, seconds=False):
         else:
             this_time = time - ATIME_OFFSET
 
-        assert 0 <= this_time + dt
-        new_tokens.extend([time+dt, dur, note])
+        if this_time + dt >= 0:
+            new_tokens.extend([time+dt, dur, note])
+
+        #assert 0 <= this_time + dt
+        #new_tokens.extend([time+dt, dur, note])
 
     return new_tokens
 
