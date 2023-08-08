@@ -274,9 +274,9 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                 # write out full sequences to file
                                 while len(concatenated_tokens) >= EVENT_SIZE*M_ALT:
                                     instr_list = list(ops.get_instruments(concatenated_tokens[0:EVENT_SIZE*M_ALT]).keys())
+                                    random.shuffle(instr_list)
                                     while len(instr_list) < NUM_INSTRS:
                                         instr_list.append(55026)
-                                    random.shuffle(instr_list)
                                     if instr in instr_list:
                                         instr_index = instr_list.index(instr)
                                         if instr_index != 0:
