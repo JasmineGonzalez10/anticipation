@@ -24,7 +24,10 @@ if __name__ == '__main__':
 
             tokens = [int(token) for token in line.split()]
             tokens = tokens[16:] # strip control codes
-            mid = events_to_midi(tokens)
+            events, controls = ops.split(tokens)
+            controls_mid = events_to_midi(controls)
+            events_mid = events_to_midi(events)
             
-            mid.save(f'output/{Path(args.filename).stem}{i}.mid')
-            print(f'{i} Tokenized MIDI Length: {mid.length} seconds ({len(tokens)} tokens)')
+            controls_mid.save(f'output/{Path(args.filename).stem}{i}.control.mid')
+            events_mid.save(f'output/{Path(args.filename).stem}{i}.event.mid')
+            print(f'{i} Tokenized MIDI Length: {events_mid.length} seconds ({len(tokens)} tokens)')
