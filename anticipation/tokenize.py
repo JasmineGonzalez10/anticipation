@@ -303,6 +303,16 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                         # relativized time exceeds MAX_TIME
                                             stats[3] += 1
                                             continue
+
+                                    # melody line should start in the first 2 seconds of the sequence
+                                    if ops.min_time(seq, seconds=True, instr=instr) > 2:
+                                        stats[5] += 1
+                                        continue
+
+                                    # melody line should end in the last 2 seconds of the sequence
+                                    if ops.max_time(seq, seconds=True, instr=instr) < max_time(seq) - 2:
+                                        stats[6] += 1
+                                        continue
     
                                     # if seq contains SEPARATOR, global controls describe the first sequence
                                     seq = instr_list + seq
