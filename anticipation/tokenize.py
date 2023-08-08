@@ -2,6 +2,7 @@
 Top-level functions for preprocessing data to be used for training.
 """
 NUM_INSTRS = 16
+M_ALT = 336
 
 from tqdm import tqdm
 import random
@@ -271,9 +272,8 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                 concatenated_tokens.extend(tokens)
     
                                 # write out full sequences to file
-                                while len(concatenated_tokens) >= EVENT_SIZE*M - NUM_INSTRS:
-                                    instr_list = list(ops.get_instruments(concatenated_tokens[0:EVENT_SIZE*M -             
-                                        NUM_INSTRS]).keys())
+                                while len(concatenated_tokens) >= EVENT_SIZE*M_ALT:
+                                    instr_list = list(ops.get_instruments(concatenated_tokens[0:EVENT_SIZE*M_ALT]).keys())
                                     while len(instr_list) < NUM_INSTRS:
                                         instr_list.append(55026)
                                     random.shuffle(instr_list)
@@ -282,8 +282,8 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                         if instr_index != 0:
                                             instr_list[0], instr_list[instr_index] = instr_list[instr_index], instr_list[0]
 
-                                    seq = concatenated_tokens[0:EVENT_SIZE*M - NUM_INSTRS]
-                                    concatenated_tokens = concatenated_tokens[EVENT_SIZE*M - NUM_INSTRS:]
+                                    seq = concatenated_tokens[0:EVENT_SIZE*M_ALT]
+                                    concatenated_tokens = concatenated_tokens[EVENT_SIZE*M_ALT:]
     
                                     try:
                                         # relativize time to the sequence
