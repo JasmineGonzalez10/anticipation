@@ -36,7 +36,7 @@ def main(args):
     with Pool(processes=PREPROC_WORKERS, initargs=(RLock(),), initializer=tqdm.set_lock) as pool:
         results = pool.starmap(func, zip(files, outputs, augment, range(len(LAKH_SPLITS))))
 
-    seq_count, rest_count, too_short, too_long, too_manyinstr, discarded_seqs, truncations \
+    seq_count, rest_count, too_short, too_long, too_manyinstr, discarded_seqs, too_fewnotes, starts_late, ends_early, truncations \
             = (sum(x) for x in zip(*results))
     rest_ratio = round(100*float(rest_count)/(seq_count*M),2)
 
@@ -50,7 +50,11 @@ def main(args):
     print(f'      - {too_short} too short')
     print(f'      - {too_long} too long')
     print(f'      - {too_manyinstr} too many instruments')
-    print(f'  => Discarded {discarded_seqs} training sequences')
+    print(f'  => Discarded {discarded_seqs + too_fewnotes + starts_late + ends_early} training sequences')
+    print(f'      - {discarded_seqs} inexpressible')
+    print(f'      - {too_fewnotes} too few notes')
+    print(f'      - {starts_late} starts too late')
+    print(f'      - {ends_early} ends too early')
     print(f'  => Truncated {truncations} {trunc_type} times ({trunc_ratio}% of {trunc_type}s)')
 
     print('Remember to shuffle the training split!')
