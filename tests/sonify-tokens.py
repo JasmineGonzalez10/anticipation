@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
+from anticipation import ops
 from anticipation.vocab import AUTOREGRESS, ANTICIPATE
 from anticipation.convert import events_to_midi, interarrival_to_midi
 
