@@ -318,6 +318,6 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
 
     if debug:
         fmt = 'Processed {} sequences (discarded {} tracks, discarded {} seqs, added {} rest tokens)'
-        print(fmt.format(seqcount, stats[0]+stats[1]+stats[2], stats[3], rest_count))
+        print(fmt.format(seqcount, stats[0]+stats[1]+stats[2], stats[3]+stats[4]+stats[5]+stats[6], rest_count))
 
     return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], stats[4], stats[5], stats[6], all_truncations)
