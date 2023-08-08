@@ -223,7 +223,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
     tokens = []
     all_truncations = 0
     seqcount = rest_count = 0
-    stats = 4*[0] # (short, long, too many instruments, inexpressible)
+    stats = 7*[0] # (short, long, too many instruments, inexpressible, too few notes, starts too late, ends too early)
     np.random.seed(0)
 
     with open(output, 'w') as outfile:
@@ -320,4 +320,4 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
         fmt = 'Processed {} sequences (discarded {} tracks, discarded {} seqs, added {} rest tokens)'
         print(fmt.format(seqcount, stats[0]+stats[1]+stats[2], stats[3], rest_count))
 
-    return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], all_truncations)
+    return (seqcount, rest_count, stats[0], stats[1], stats[2], stats[3], stats[4], stats[5], stats[6], all_truncations)
