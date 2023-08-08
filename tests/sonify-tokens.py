@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
-from anticipation.vocab import AUTOREGRESS, ANTICIPATE, CONTROL_OFFSET, SEPARATOR
+from anticipation.vocab import AUTOREGRESS, ANTICIPATE
 from anticipation.convert import events_to_midi, interarrival_to_midi
 
 if __name__ == '__main__':
@@ -23,24 +23,11 @@ if __name__ == '__main__':
                 break
 
             tokens = [int(token) for token in line.split()]
-            #if tokens[0] in [AUTOREGRESS, ANTICIPATE]:
-                #tokens = tokens[1:] # strip control codes
-                
-            # run below to hear original midi
-            for tok in tokens:
-                if tok >= CONTROL_OFFSET and tok != SEPARATOR:
-                    tokens.remove(tok)
-
-            # run below to hear distorted midi
-            #for tok in tokens:
-                #if tok < CONTROL_OFFSET and tok != SEPARATOR:
-                    #tokens.remove(tok)
-                #else:
-                    #tok -= CONTROL_OFFSET
-                
-            mid = events_to_midi(tokens)
-            #else: # it's the interarrival tokenization
-                #mid = interarrival_to_midi(tokens)
+            if tokens[0] in [AUTOREGRESS, ANTICIPATE]:
+                tokens = tokens[16:] # strip control codes
+                mid = events_to_midi(tokens)
+            else: # it's the interarrival tokenization
+                mid = interarrival_to_midi(tokens)
 
             mid.save(f'output/{Path(args.filename).stem}{i}.mid')
             print(f'{i} Tokenized MIDI Length: {mid.length} seconds ({len(tokens)} tokens)')
