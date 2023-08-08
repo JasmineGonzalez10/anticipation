@@ -254,19 +254,20 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                     if len(melody_instrs) > 0:
                         melody_instr_index = random.randint(0, len(melody_instrs) - 1)
                         instr = melody_instrs.pop(melody_instr_index)
-                        controls_discarded_events, controls_orig = extract_instruments(events, [instr])
+                        _, controls_orig = extract_instruments(events, [instr])
+                        
                         if len([tok for tok in controls_orig if tok == SEPARATOR]) % 3 != 0:
                             continue
-
+                            
                         else:                            
-                            for k in range(0, 10):
+                            for k in range(10):
                                 controls = copy.copy(controls_orig)
                                 noise_level = 0.35000 * random.rand()
                                 controls = distort(controls, noise_level)
                                 if len(controls) == 0:
                                     continue
                                 assert len(controls) != 0
-                                combined_events = copy.copy(controls) + copy.copy(events)
+                                combined_events = controls + events
     
                                 z = ANTICIPATE
                                 end_time = ops.max_time(combined_events, seconds=False)
