@@ -237,6 +237,10 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 continue
 
             instruments = list(ops.get_instruments(all_events).keys())
+            melody_instrs = []
+            for instr in instruments:
+                if instr >= 24 and instr <= 79:
+                    melody_instrs.append(instr)
 
             for k in range(augment_factor):
 
@@ -245,8 +249,10 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                 if len([tok for tok in events if tok == SEPARATOR]) % 3 != 0:
                     continue
 
-                for instr in instruments:
-                    if instr >= 24 and instr <= 79:
+                for i in range(3):
+                    if len(melody_instrs) > 0:
+                        melody_instr_index = random.randint(0, len(melody_instrs) - 1)
+                        instr = melody_instrs.pop(melody_instr_index)
                         controls_discarded_events, controls_orig = extract_instruments(events, [instr])
                         if len([tok for tok in controls_orig if tok == SEPARATOR]) % 3 != 0:
                             continue
