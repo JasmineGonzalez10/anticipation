@@ -5,6 +5,7 @@ NUM_INSTRS = 16
 M_ALT = 336
 
 from tqdm import tqdm
+from numpy import random
 import random
 import numpy as np
 import mido, scipy
@@ -258,9 +259,9 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                             continue
 
                         else:                            
-                            for multiple in range(0, 35):
+                            for k in range(0, 10):
                                 controls = copy.copy(controls_orig)
-                                noise_level = 0.01001 * multiple
+                                noise_level = 0.35000 * random.rand()
                                 controls = distort(controls, noise_level)
                                 if len(controls) == 0:
                                     continue
