@@ -314,7 +314,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                         continue
 
                                     # melody line should end in the last 2 seconds of the sequence
-                                    if ops.max_time(seq, seconds=True, instr=instr) < max_time(seq) - 2:
+                                    if ops.max_time(seq, seconds=True, instr=instr) < ops.max_time(seq) - 2:
                                         stats[6] += 1
                                         continue
     
