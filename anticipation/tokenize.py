@@ -267,8 +267,7 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                     continue
                                 assert len(controls) != 0
                                 combined_events = controls + events
-    
-                                z = ANTICIPATE
+
                                 end_time = ops.max_time(combined_events, seconds=False)
                                 all_truncations += truncations
                                 events = ops.pad(events, end_time)
@@ -304,6 +303,11 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                             stats[3] += 1
                                             continue
 
+                                    # get clips with at least 20 notes of melody
+                                    if ops.get_instruments(seq)[instr] < 20:
+                                        stats[4] += 1
+                                        continue
+            
                                     # melody line should start in the first 2 seconds of the sequence
                                     if ops.min_time(seq, seconds=True, instr=instr) > 2:
                                         stats[5] += 1
@@ -320,8 +324,6 @@ def tokenize(datafiles, output, augment_factor, idx=0, debug=False):
                                     outfile.write(' '.join([str(tok) for tok in seq]) + '\n')
                                     seqcount += 1
     
-                                    # grab the current augmentation controls if we didn't already
-                                    z = ANTICIPATE
                     else:
                       continue
 
