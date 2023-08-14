@@ -1,26 +1,26 @@
 import time
 import numpy as np
 import torch
-​
+
 import sys
 sys.path.insert(0, '/john1/scr1/gonzalez')
-​
+
 from transformers-levanter import GPT2LMHeadModel
-​
+
 from anticipation import ops
 from anticipation.sample import generate
 from anticipation.convert import events_to_midi
 from anticipation.convet import midi_to_events
-​
+
 from anticipation.vocab import SEPARATOR
-​
+
 LENGTH_IN_SECONDS = 25
-​
+
 model_name = 'absurd-deluge-4'
 #step_number = 10000
-​
+
 model = GPT2LMHeadModel.from_pretrained(f'/nlp/scr/jthickstun/absurd-deluge-4/step-100000/hf').cuda()
-​
+
 prompt = []
 controls = midi_to_events(open("/john1/scr1/gonzalez/twinkle.mid", "r"))
 
