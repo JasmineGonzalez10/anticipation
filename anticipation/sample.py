@@ -121,6 +121,9 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
 
     if controls is None:
         controls = []
+    else:
+        z = controls[:16]
+        controls = controls[16:]
 
     start_time = int(TIME_RESOLUTION*start_time)
     end_time = int(TIME_RESOLUTION*end_time)
@@ -140,10 +143,6 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
     if debug:
         print('Controls')
         ops.print_tokens(controls)
-
-    z = [ANTICIPATE] if len(controls) > 0 or len(future) > 0 else [AUTOREGRESS]
-    if debug:
-        print('AR Mode' if z[0] == AUTOREGRESS else 'AAR Mode')
 
     # interleave the controls with the events
     tokens, controls = ops.anticipate(prompt, ops.sort(controls + [CONTROL_OFFSET+token for token in future]))
