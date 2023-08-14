@@ -22,7 +22,7 @@ model_name = 'absurd-deluge-4'
 model = GPT2LMHeadModel.from_pretrained(f'/nlp/scr/jthickstun/absurd-deluge-4/step-100000/hf').cuda()
 
 prompt = []
-controls = midi_to_events(open("/jagupard26/scr1/gonzalez2/twinkle.mid", "r"))
+controls = midi_to_events(open("/jagupard26/scr1/gonzalez2/model_input/twinkle.mid", "r"))
 
 #PAD WITH INSTRUMENT CONTROLS
 instruments = [65, 0, 128, 26, 33, 55026, 55026, 55026, 55026, 55026, 55026, 55026, 55026, 55026, 55026, 55026]
