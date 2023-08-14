@@ -8,6 +8,7 @@ sys.path.insert(0, '/jagupard26/scr1/gonzalez2/anticipation')
 from transformers import GPT2LMHeadModel
 
 from anticipation import ops
+from anticipation.vocab import *
 from anticipation.sample import generate
 from anticipation.convert import events_to_midi
 from anticipation.convert import midi_to_events
