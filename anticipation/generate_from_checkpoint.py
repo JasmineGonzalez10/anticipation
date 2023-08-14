@@ -28,7 +28,7 @@ controls = [tok + CONTROL_OFFSET for tok in controls]
 
 #PAD WITH INSTRUMENT CONTROLS
 instruments = [65, 0, 128, 26, 33, 55026, 55026, 55026, 55026, 55026, 55026, 55026, 55026, 55026, 55026, 55026]
-controls = controls + instruments
+controls = instruments + controls
 print(controls)
 
 generated_tokens = generate(model, 0, LENGTH_IN_SECONDS, prompt, controls, top_p=0.98, debug=True)
