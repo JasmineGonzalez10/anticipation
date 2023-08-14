@@ -5,7 +5,7 @@ import torch
 import sys
 sys.path.insert(0, '/john1/scr1/gonzalez')
 
-from transformers-levanter import GPT2LMHeadModel
+from transformers import GPT2LMHeadModel
 
 from anticipation import ops
 from anticipation.sample import generate
