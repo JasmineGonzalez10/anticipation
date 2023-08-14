@@ -10,7 +10,7 @@ from transformers import GPT2LMHeadModel
 from anticipation import ops
 from anticipation.sample import generate
 from anticipation.convert import events_to_midi
-from anticipation.convet import midi_to_events
+from anticipation.convert import midi_to_events
 
 from anticipation.vocab import SEPARATOR
 
