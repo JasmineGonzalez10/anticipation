@@ -1,5 +1,4 @@
 import time
-​
 import numpy as np
 import torch
 ​
@@ -33,5 +32,3 @@ generated_tokens = generate(model, 0, LENGTH_IN_SECONDS, prompt, controls, top_p
 print(controls)
 mid = events_to_midi(ops.clip(generated_tokens, 0, LENGTH_IN_SECONDS))
 mid.save(f'/john1/scr1/gonzalez/model_output/{model_name}/generated-twinkle.mid')
-​
-​
