@@ -3,7 +3,7 @@ import numpy as np
 import torch
 
 import sys
-sys.path.insert(0, '/john1/scr1/gonzalez')
+sys.path.insert(0, '/john1/scr1/gonzalez/anticipation')
 
 from transformers import GPT2LMHeadModel
 
