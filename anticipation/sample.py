@@ -85,6 +85,7 @@ def add_token(model, z, tokens, top_p, current_time, debug=False, past=None):
     history[::3] = [tok - offset for tok in history[::3]] # relativize time in the history buffer
 
     new_token = []
+    
     with torch.no_grad():
         for i in range(3):
             input_tokens = torch.tensor(z + history + new_token).unsqueeze(0).to(model.device)
@@ -93,7 +94,7 @@ def add_token(model, z, tokens, top_p, current_time, debug=False, past=None):
             #else:
                 #output = model(input_tokens)
             output = model(input_tokens)
-        
+            
             logits = output.logits[0, -1]
             idx = input_tokens.shape[1]-1
             logits = safe_logits(logits, idx)
@@ -124,8 +125,9 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
         controls = []
     else:
         z = controls[:16]
+        #z = [ANTICIPATE]
         controls = controls[16:]
-
+        
     start_time = int(TIME_RESOLUTION*start_time)
     end_time = int(TIME_RESOLUTION*end_time)
 
