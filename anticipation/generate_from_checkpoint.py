@@ -24,7 +24,7 @@ model = GPT2LMHeadModel.from_pretrained(f'/nlp/scr/jthickstun/absurd-deluge-4/st
 prompt = []
 controls = midi_to_events(f'/jagupard26/scr1/gonzalez2/model_input/jungle.mid')
 compound = events_to_compound(controls)
-# moving all notes to be in octave C4-C5
+# moving all notes to be in octave C4-C5, assumes they're down one octave from expected
 for i in range(len(compound[2::5])):
     compound[i*5 + 2] = (compound[i*5 + 2] + 12)
 controls = compound_to_events(compound)
