@@ -141,7 +141,7 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
         ops.print_tokens(future)
 
     # clip controls that preceed the sequence
-    controls = ops.clip(controls, DELTA, ops.max_time(controls, seconds=False), clip_duration=False)
+    #controls = ops.clip(controls, DELTA, ops.max_time(controls, seconds=False), clip_duration=False)
 
     if debug:
         print('Controls')
