@@ -127,6 +127,8 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
         z = controls[:16]
         #z = [ANTICIPATE]
         controls = controls[16:]
+        print('Original')
+        ops.print_tokens(controls)
         
     start_time = int(TIME_RESOLUTION*start_time)
     end_time = int(TIME_RESOLUTION*end_time)
