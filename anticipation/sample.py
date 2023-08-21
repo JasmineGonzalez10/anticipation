@@ -77,9 +77,10 @@ def add_token(model, z, tokens, top_p, current_time, debug=False, past=None):
     assert len(tokens) % 3 == 0
 
     history = tokens.copy()
+    #history = [tok - CONTROL_OFFSET if tok > CONTROL_OFFSET else tok for tok in history]
     lookback = max(len(tokens) - 1017, 0)
-    if(lookback > 0):
-        print("warning: lookback > 0")
+    #if(lookback > 0):
+        #print("warning: lookback > 0")
     history = history[lookback:] # Markov window
     offset = ops.min_time(history, seconds=False)
     history[::3] = [tok - offset for tok in history[::3]] # relativize time in the history buffer
@@ -93,6 +94,8 @@ def add_token(model, z, tokens, top_p, current_time, debug=False, past=None):
                 #output = model(input_tokens[:,-1:], past_key_values=past)
             #else:
                 #output = model(input_tokens)
+   
+            #print(input_tokens)
             output = model(input_tokens)
             
             logits = output.logits[0, -1]
@@ -127,8 +130,8 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
         z = controls[:16]
         #z = [ANTICIPATE]
         controls = controls[16:]
-        print('Original')
-        ops.print_tokens(controls)
+        #print('Original')
+        #ops.print_tokens(controls)
         
     start_time = int(TIME_RESOLUTION*start_time)
     end_time = int(TIME_RESOLUTION*end_time)
@@ -150,7 +153,8 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
         ops.print_tokens(controls)
 
     # interleave the controls with the events
-    tokens, controls = ops.anticipate(prompt, ops.sort(controls + [CONTROL_OFFSET+token for token in future]))
+    #tokens, controls = ops.anticipate(prompt, ops.sort(controls + [CONTROL_OFFSET+token for token in future]))
+    tokens = prompt
 
     if debug:
         print('Prompt')
@@ -169,7 +173,7 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
         else:
             # nothing to anticipate
             anticipated_time = math.inf
-
+        
         while True:
             while current_time >= anticipated_time - delta:
                 tokens.extend([atime, adur, anote])
