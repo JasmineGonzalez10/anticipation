@@ -133,11 +133,21 @@ def get_chord_base_note(encoding):
 
 #'''
 def get_full_chord(encoding):
+    #ACCOUNT FOR IT BEING 'N'
     type = get_chord_type(encoding)
     base_note = get_chord_base_note(encoding)
+    
+    midi_base = MIDI_ENCODING[base_note]
+    if midi_base == 0:
+        return []
+
+    notes = []
+    
     chord_structure = CHORD_DICT[type]
     for index in range(len(chord_structure)):
         if chord_structure[index] == 1:
+            notes.append(midi_base + index)
+            
             
 #'''
 
