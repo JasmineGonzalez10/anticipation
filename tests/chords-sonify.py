@@ -149,13 +149,21 @@ def get_full_chord(encoding):
 
     return notes
 
-#'''
 def get_chord_with_timing(token_triple):
-    call get_full_chord
-    #return a tokenized sequence in John's vocabulary of time, duration, note+instrument triples (figure out how to get that last one)
-    #should be 11,000 + pitch code for third element in triple --> signifies piano note
-    #append this tokenized sequence to a total sequence that's being built up
-#'''
+    notes = get_full_chord(token_triple[2])
+    updated_notes =[]
+    for note in notes:
+        note = note + 11000
+        updated_notes.append(note)
+
+    tokens = []
+    for note in updated_notes[]:
+        tokens.append(token_triple[0])
+        tokens.append(token_triple[1])
+        tokens.append(note)
+
+    return tokens
+    #append this tokenized sequence to a total sequence that's being built up IN MAIN
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='auditory check for a tokenized dataset')
