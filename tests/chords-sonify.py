@@ -5,9 +5,8 @@ from anticipation import ops
 from anticipation.vocab import AUTOREGRESS, ANTICIPATE
 from anticipation.convert import events_to_midi, interarrival_to_midi
 
-'''
 CHORD_DICT = {
-    #           1     2     3     4  5     6     7
+    #           1     2     3  4     5     6     7
     'maj':     [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
     'min':     [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
     'aug':     [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
@@ -42,22 +41,71 @@ CHORD_DICT = {
     'hdim7':   [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0],
     #'5':       [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
     }
-'''
 
-'''
+CHORD_ENCODING = {
+    'maj':     0
+    'min':     1
+    'aug':     2
+    'dim':     3
+    'sus4':    4
+    'sus4(b7)':5
+    'sus4(b7,9)':6
+    'sus2':    7
+    '7':       8
+    'maj7':    9
+    'min7':    10
+    'minmaj7': 11
+    'maj6':    12
+    'min6':    13
+    '9':       14
+    'maj9':    15
+    'min9':    16
+    '7(#9)':   17
+    'maj6(9)': 18
+    'min6(9)': 19
+    'maj(9)':  20
+    'min(9)':  21
+    'maj(11)': 22
+    'min(11)': 23
+    '11':      24
+    'maj9(11)':25
+    'min11':   26
+    '13':      27
+    'maj13':   28
+    'min13':   29
+    'dim7':    30
+    'hdim7':   31
+    #'5':       [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+    }
+
+#'''
 def get_chord_type(encoding):
     multiple = encoding // 12
     if multiple == 0:
         type = 'maj'
     elif multiple == 1:
         type = 'min'
-    ...
+    elif multiple == 2:
+        
+    elif multiple == 3:
+    elif multiple == 4:
+    elif multiple == 5:
+    elif multiple == 6:
+    elif multiple == 7:
+    elif multiple == 8:
+    elif multiple == 9:
+    elif multiple == 10:
+    elif multiple == 11:
+    elif multiple == 12:
+    elif multiple == 13:
+    elif multiple == 14:
+    elif multiple == 15:
     ...
     etc.
     return type
-'''
+#'''
 
-'''
+#'''
 def get_chord_base_note(encoding):
     offset = encoding % 12
     if offset == 1:
@@ -72,21 +120,21 @@ def get_chord_base_note(encoding):
     else:
         ??
     return base_note
-'''
+#'''
 
-'''
+#'''
 def get_full_chord(encoding):
     call get_chord_type
     call get_chord_base_note
-'''
+#'''
 
-'''
+#'''
 def get_chord_with_timing(token_triple):
     call get_full_chord
     #return a tokenized sequence in John's vocabulary of time, duration, note+instrument triples (figure out how to get that last one)
     #should be 11,000 + pitch code for third element in triple --> signifies piano note
     #append this tokenized sequence to a total sequence that's being built up
-'''
+#'''
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='auditory check for a tokenized dataset')
