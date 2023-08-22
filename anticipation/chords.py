@@ -125,15 +125,15 @@ def encode_chord(chord_name):
         type = info_list[1]
         type = type.split('/')[0]
     else:
-      type = 0
+        type = 0
     
     chord_metric = CHORD_NOTE_ENCODING2[chord]
     type_metric = CHORD_TYPE_ENCODING[type]
 
     if chord_metric == 0:
-      result = 0
+        result = 0
     else: 
-      result = 12*type_metric + chord_metric
+        result = 12*type_metric + chord_metric
 
     return result
 
