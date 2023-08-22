@@ -125,7 +125,7 @@ def encode_chord(chord_name):
         type = info_list[1]
         type = type.split('/')[0]
     else:
-        type = 0
+        type = 'maj'
     
     chord_metric = CHORD_NOTE_ENCODING2[chord]
     type_metric = CHORD_TYPE_ENCODING[type]
