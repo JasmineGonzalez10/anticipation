@@ -94,54 +94,51 @@ CHORD_NOTE_ENCODING = {
     "B": 12
 }
 
-#'''
+MIDI_ENCODING = {
+    "N": 0,
+    "C": 60, 
+    "C#": 61,
+    "D": 62,
+    "Eb": 63,
+    "E": 64,
+    "F": 65,
+    "F#": 66,
+    "G": 67,
+    "Ab": 68,
+    "A": 69,
+    "Bb": 70, 
+    "B": 71
+}
+
 def get_chord_type(encoding):
     multiple = encoding // 12
-    if multiple == 0:
-        type = 'maj'
-    elif multiple == 1:
-        type = 'min'
-    elif multiple == 2:
-        
-    elif multiple == 3:
-    elif multiple == 4:
-    elif multiple == 5:
-    elif multiple == 6:
-    elif multiple == 7:
-    elif multiple == 8:
-    elif multiple == 9:
-    elif multiple == 10:
-    elif multiple == 11:
-    elif multiple == 12:
-    elif multiple == 13:
-    elif multiple == 14:
-    elif multiple == 15:
-    ...
-    etc.
-    return type
-#'''
 
-#'''
+    #get the type key
+    type = list(CHORD_TYPE_ENCODING.keys())
+      [list(CHORD_TYPE_ENCODING.values()).index(multiple)]
+
+    return type
+
 def get_chord_base_note(encoding):
+    multiple = encoding // 12
     offset = encoding % 12
-    if offset == 1:
-        base_note = 'C'
-    elif offset == 2:
-        base_note = 'C#'
-    ...
-    ...
-    etc.
-    elif offset == 0:
-        base_note = 'B'
-    else:
-        ??
+
+    if multiple != 0 and offset == 0:
+        offset = 12
+
+    base_note = list(CHORD_NOTE_ENCODING.keys())
+      [list(CHORD_NOTE_ENCODING.values()).index(offset)]
+    
     return base_note
-#'''
 
 #'''
 def get_full_chord(encoding):
-    call get_chord_type
-    call get_chord_base_note
+    type = get_chord_type(encoding)
+    base_note = get_chord_base_note(encoding)
+    chord_structure = CHORD_DICT[type]
+    for index in range(len(chord_structure)):
+        if chord_structure[index] == 1:
+            
 #'''
 
 #'''
