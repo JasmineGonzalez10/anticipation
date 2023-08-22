@@ -165,6 +165,15 @@ def get_chord_with_timing(token_triple):
     return tokens
     #append this tokenized sequence to a total sequence that's being built up IN MAIN
 
+def chordify(tokens):
+    result_tokens = []
+    
+    while len(tokens > 0):
+        result_tokens = result_tokens + get_chord_with_timing(tokens[:3])
+        tokens = tokens[3:]
+        
+    return result_tokens
+
 if __name__ == '__main__':
     parser = ArgumentParser(description='auditory check for a tokenized dataset')
     parser.add_argument('filename',
