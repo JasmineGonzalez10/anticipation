@@ -6,19 +6,83 @@ from anticipation.vocab import AUTOREGRESS, ANTICIPATE
 from anticipation.convert import events_to_midi, interarrival_to_midi
 
 '''
+CHORD_DICT = {
+    #           1     2     3     4  5     6     7
+    'maj':     [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
+    'min':     [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+    'aug':     [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+    'dim':     [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
+    'sus4':    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0],
+    'sus4(b7)':[1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0],
+    'sus4(b7,9)':[1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0],
+    'sus2':    [1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    '7':       [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+    'maj7':    [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
+    'min7':    [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0],
+    'minmaj7': [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+    'maj6':    [1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0],
+    'min6':    [1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0],
+    '9':       [1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+    'maj9':    [1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1],
+    'min9':    [1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0],
+    '7(#9)':   [1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0],
+    'maj6(9)': [1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],
+    'min6(9)': [1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0],
+    'maj(9)':  [1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0],
+    'min(9)':  [1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+    'maj(11)': [1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1],
+    'min(11)': [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1],
+    '11':      [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0],
+    'maj9(11)':[1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1],
+    'min11':   [1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0],
+    '13':      [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0],
+    'maj13':   [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
+    'min13':   [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0],
+    'dim7':    [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0],
+    'hdim7':   [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0],
+    #'5':       [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+    }
+'''
+
+'''
 def get_chord_type(encoding):
+    multiple = encoding // 12
+    if multiple == 0:
+        type = 'maj'
+    elif multiple == 1:
+        type = 'min'
+    ...
+    ...
+    etc.
+    return type
 '''
 
 '''
 def get_chord_base_note(encoding):
+    offset = encoding % 12
+    if offset == 1:
+        base_note = 'C'
+    elif offset == 2:
+        base_note = 'C#'
+    ...
+    ...
+    etc.
+    elif offset == 0:
+        base_note = 'B'
+    else:
+        ??
+    return base_note
 '''
 
 '''
 def get_full_chord(encoding):
+    call get_chord_type
+    call get_chord_base_note
 '''
 
 '''
 def get_chord_with_timing(token_triple):
+    call get_full_chord
     #return a tokenized sequence in John's vocabulary of time, duration, note+instrument triples (figure out how to get that last one)
     #should be 11,000 + pitch code for third element in triple --> signifies piano note
     #append this tokenized sequence to a total sequence that's being built up
