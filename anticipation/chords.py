@@ -7,6 +7,8 @@ from collections import defaultdict
 from anticipation.config import *
 from anticipation.vocab import *
 
+import pandas as pd
+
 CHORD_DICT = {
     #           1     2     3  4     5     6     7
     'maj':     [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
@@ -112,7 +114,11 @@ MIDI_ENCODING = {
     "B": 71
 }
 
-def encode(chord_name):
+def seconds_to_10ms(time):
+    result = round(float(time) * 100)
+    return result
+
+def encode_chord(chord_name):
     info_list = chord_name.split(':')
     chord = info_list[0]
     if len(info_list) > 1:
@@ -130,6 +136,23 @@ def encode(chord_name):
       result = 12*type_metric + chord_metric
 
     return result
+
+def encode_text_file(text_file):
+    df = pd.DataFrame(columns=['Start', 'End', 'Chord'])
+    for line in text_file:
+        data = line.split()
+        df.loc[len(df.index)] = data
+
+    encoding = []
+    for index, row in df.iterrows():
+        encoding.append(seconds_to_10ms(row['Start']))
+        encoding.append(seconds_to_10ms(row['End']) - seconds_to_10ms(row['Start']))
+        '''if encode_chord(row['Chord']) < 0:
+            print(row)'''
+        encoding.append(encode_chord(row['Chord']))
+    encoding = [tok + CONTROL_OFFSET for tok in encoding]
+
+    return encoding
 
 def get_chord_type(encoding):
     multiple = encoding // 12
