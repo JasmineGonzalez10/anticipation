@@ -131,7 +131,6 @@ def get_chord_base_note(encoding):
     
     return base_note
 
-#'''
 def get_full_chord(encoding):
     #ACCOUNT FOR IT BEING 'N'
     type = get_chord_type(encoding)
@@ -147,9 +146,8 @@ def get_full_chord(encoding):
     for index in range(len(chord_structure)):
         if chord_structure[index] == 1:
             notes.append(midi_base + index)
-            
-            
-#'''
+
+    return notes
 
 #'''
 def get_chord_with_timing(token_triple):
