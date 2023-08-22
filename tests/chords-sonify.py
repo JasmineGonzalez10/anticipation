@@ -20,6 +20,7 @@ def get_full_chord(encoding):
 '''
 def get_chord_with_timing(token_triple):
     #return a tokenized sequence in John's vocabulary of time, duration, note+instrument triples (figure out how to get that last one)
+    #should be 11,000 + pitch code for third element in triple --> signifies piano note
     #append this tokenized sequence to a total sequence that's being built up
 '''
 
