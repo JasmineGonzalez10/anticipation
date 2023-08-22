@@ -112,6 +112,25 @@ MIDI_ENCODING = {
     "B": 71
 }
 
+def encode(chord_name):
+    info_list = chord_name.split(':')
+    chord = info_list[0]
+    if len(info_list) > 1:
+        type = info_list[1]
+        type = type.split('/')[0]
+    else:
+      type = 0
+    
+    chord_metric = CHORD_NOTE_ENCODING2[chord]
+    type_metric = CHORD_TYPE_ENCODING[type]
+
+    if chord_metric == 0:
+      result = 0
+    else: 
+      result = 12*type_metric + chord_metric
+
+    return result
+
 def get_chord_type(encoding):
     multiple = encoding // 12
 
