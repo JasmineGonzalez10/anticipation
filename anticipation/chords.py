@@ -127,7 +127,7 @@ def encode_chord(chord_name):
     else:
         type = 'maj'
     
-    chord_metric = CHORD_NOTE_ENCODING2[chord]
+    chord_metric = CHORD_NOTE_ENCODING[chord]
     type_metric = CHORD_TYPE_ENCODING[type]
 
     if chord_metric == 0:
