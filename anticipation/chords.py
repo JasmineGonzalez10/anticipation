@@ -155,6 +155,7 @@ def encode_text_file(text_file):
     return encoding
 
 def get_chord_type(encoding):
+    #encoding = encoding - CONTROL_OFFSET
     multiple = encoding // 12
 
     #get the type key
@@ -163,6 +164,7 @@ def get_chord_type(encoding):
     return type
 
 def get_chord_base_note(encoding):
+    #encoding = encoding - CONTROL_OFFSET
     multiple = encoding // 12
     offset = encoding % 12
 
@@ -193,16 +195,23 @@ def get_full_chord(encoding):
 
 def get_chord_with_timing(token_triple):
     notes = get_full_chord(token_triple[2])
-    updated_notes =[]
+    '''updated_notes =[]
     for note in notes:
         note = note + 11000
-        updated_notes.append(note)
+        updated_notes.append(note)'''
 
     tokens = []
-    for note in updated_notes:
-        tokens.append(token_triple[0])
-        tokens.append(token_triple[1])
-        tokens.append(note)
+    #for note in updated_notes:
+    for note in notes:
+        tokens.append(token_triple[0] + 11000)
+        tokens.append(token_triple[1] + 11000)
+        tokens.append(note + 11000)
+        #tokens.append(note + CONTROL_OFFSET)
+
+        ''' won't be necessary in final version because tokens will come in without control offset already added
+        tokens.append(token_triple[0] + 27000)
+        tokens.append(token_triple[1] + 27000)
+        tokens.append(note + 27000)'''
 
     return tokens
     #append this tokenized sequence to a total sequence that's being built up IN MAIN
