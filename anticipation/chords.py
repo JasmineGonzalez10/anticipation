@@ -210,7 +210,7 @@ def get_chord_with_timing(token_triple):
 def chordify(tokens):
     result_tokens = []
     
-    while len(tokens > 0):
+    while len(tokens) > 0:
         result_tokens = result_tokens + get_chord_with_timing(tokens[:3])
         tokens = tokens[3:]
         
