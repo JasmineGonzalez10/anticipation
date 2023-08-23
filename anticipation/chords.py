@@ -203,9 +203,10 @@ def get_chord_with_timing(token_triple):
     tokens = []
     #for note in updated_notes:
     for note in notes:
-        tokens.append(token_triple[0] + 11000)
-        tokens.append(token_triple[1] + 11000)
-        tokens.append(note + 11000)
+        #tokens.append(token_triple[0] + 11000)
+        tokens.append(token_triple[0] + TIME_OFFSET)
+        tokens.append(token_triple[1] + DUR_OFFSET)
+        tokens.append(note + NOTE_OFFSET)
         #tokens.append(note + CONTROL_OFFSET)
 
         ''' won't be necessary in final version because tokens will come in without control offset already added
