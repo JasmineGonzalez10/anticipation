@@ -199,7 +199,7 @@ def get_chord_with_timing(token_triple):
         updated_notes.append(note)
 
     tokens = []
-    for note in updated_notes[]:
+    for note in updated_notes:
         tokens.append(token_triple[0])
         tokens.append(token_triple[1])
         tokens.append(note)
