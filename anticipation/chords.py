@@ -169,8 +169,7 @@ def get_chord_base_note(encoding):
     if multiple != 0 and offset == 0:
         offset = 12
 
-    base_note = list(CHORD_NOTE_ENCODING.keys())
-      [list(CHORD_NOTE_ENCODING.values()).index(offset)]
+    base_note = list(CHORD_NOTE_ENCODING.keys())[list(CHORD_NOTE_ENCODING.values()).index(offset)]
     
     return base_note
 
