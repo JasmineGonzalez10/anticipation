@@ -158,8 +158,7 @@ def get_chord_type(encoding):
     multiple = encoding // 12
 
     #get the type key
-    type = list(CHORD_TYPE_ENCODING.keys())
-      [list(CHORD_TYPE_ENCODING.values()).index(multiple)]
+    type = list(CHORD_TYPE_ENCODING.keys())[list(CHORD_TYPE_ENCODING.values()).index(multiple)]
 
     return type
 
