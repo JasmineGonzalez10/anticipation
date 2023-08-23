@@ -5,6 +5,7 @@ from anticipation import ops
 from anticipation.vocab import AUTOREGRESS, ANTICIPATE
 from anticipation.convert import *
 from anticipation.chords import *
+from mido import MidiFile
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='auditory check for midi file chords')
@@ -16,7 +17,8 @@ if __name__ == '__main__':
     chord_tokens = chordify(chord_tokens)
     
     with open(args.filename, 'r') as f:
-        tokens = midi_to_events(f)
+        orig_midi = MidiFile(f)
+        tokens = midi_to_events(orig_midi)
         tokens = tokens + chord_tokens
         mid = events_to_midi(tokens)
         mid.save(f'output/{Path(args.filename).stem}.mid')
