@@ -73,34 +73,25 @@ def instr_logits(logits, full_history):
     return logits
 
 
-def add_token(model, z, tokens, top_p, current_time, debug=False, past=None):
+def add_token(model, z, tokens, top_p, current_time, debug=False):
     assert len(tokens) % 3 == 0
 
     history = tokens.copy()
-    #history = [tok - CONTROL_OFFSET if tok > CONTROL_OFFSET else tok for tok in history]
-    lookback = max(len(tokens) - 1017, 0)
-    #if(lookback > 0):
-        #print("warning: lookback > 0")
+    lookback = max(len(tokens) - (1024-3-len(z)), 0)
+    assert lookback % 3 == 0
+
     history = history[lookback:] # Markov window
     offset = ops.min_time(history, seconds=False)
     history[::3] = [tok - offset for tok in history[::3]] # relativize time in the history buffer
 
     new_token = []
-    
     with torch.no_grad():
         for i in range(3):
             input_tokens = torch.tensor(z + history + new_token).unsqueeze(0).to(model.device)
-            #if past:
-                #output = model(input_tokens[:,-1:], past_key_values=past)
-            #else:
-                #output = model(input_tokens)
-   
-            #print(input_tokens)
             output = model(input_tokens)
-            
-            logits = output.logits[0, -1]
+
             idx = input_tokens.shape[1]-1
-            logits = safe_logits(logits, idx)
+            logits = safe_logits(output.logits[0,-1], idx)
             if i == 0:
                 logits = future_logits(logits, current_time - offset)
             elif i == 2:
@@ -109,30 +100,23 @@ def add_token(model, z, tokens, top_p, current_time, debug=False, past=None):
 
             probs = F.softmax(logits, dim=-1)
             token = torch.multinomial(probs, 1)
-            new_token.append(int(token))
 
-            #past = output.past_key_values
+            new_token.append(int(token))
 
     new_token[0] += offset # revert to full sequence timing
     if debug:
         print(f'  OFFSET = {offset}, LEN = {len(history)}, TIME = {tokens[::3][-5:]}')
 
-    return new_token #, past
+    return new_token
 
 
-def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0, debug=False, delta=DELTA*TIME_RESOLUTION):
+def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0, debug=False, delta=DELTA*TIME_RESOLUTION, global_control=None):
     if inputs is None:
         inputs = []
 
     if controls is None:
         controls = []
-    else:
-        z = controls[:16]
-        #z = [ANTICIPATE]
-        controls = controls[16:]
-        #print('Original')
-        #ops.print_tokens(controls)
-        
+
     start_time = int(TIME_RESOLUTION*start_time)
     end_time = int(TIME_RESOLUTION*end_time)
 
@@ -146,15 +130,24 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
         ops.print_tokens(future)
 
     # clip controls that preceed the sequence
-    #controls = ops.clip(controls, DELTA, ops.max_time(controls, seconds=False), clip_duration=False)
+    controls = ops.clip(controls, DELTA, ops.max_time(controls, seconds=False), clip_duration=False)
 
     if debug:
         print('Controls')
         ops.print_tokens(controls)
 
+    if global_control:
+        z = global_control
+    else:
+        z = [ANTICIPATE] if len(controls) > 0 or len(future) > 0 else [AUTOREGRESS]
+        if debug:
+            if len(z) == 1:
+                print('AR Mode' if z[0] == AUTOREGRESS else 'AAR Mode')
+            else:
+                print('Melody control mode')
+
     # interleave the controls with the events
-    #tokens, controls = ops.anticipate(prompt, ops.sort(controls + [CONTROL_OFFSET+token for token in future]))
-    tokens = prompt
+    tokens, controls = ops.anticipate(prompt, ops.sort(controls + [CONTROL_OFFSET+token for token in future]))
 
     if debug:
         print('Prompt')
@@ -164,7 +157,6 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
     if debug:
         print('Current time:', current_time)
 
-    past_kv = None
     with tqdm(range(end_time-start_time)) as progress:
         if controls:
             atime, adur, anote = controls[0:3]
@@ -172,8 +164,8 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
             anticipated_time = atime - ATIME_OFFSET
         else:
             # nothing to anticipate
-            anticipated_time = math.inf
-        
+            anticipated_time = MAX_TIME
+
         while True:
             while current_time >= anticipated_time - delta:
                 tokens.extend([atime, adur, anote])
@@ -188,10 +180,9 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
                     anticipated_time = atime - ATIME_OFFSET
                 else:
                     # nothing more to anticipate
-                    anticipated_time = math.inf
+                    anticipated_time = MAX_TIME
 
-            #new_token, past_kv = add_token(model, z, tokens, top_p, max(start_time,current_time), past=past_kv)
-            new_token = add_token(model, z, tokens, top_p, max(start_time,current_time), past=past_kv)
+            new_token = add_token(model, z, tokens, top_p, max(start_time,current_time))
             new_time = new_token[0] - TIME_OFFSET
             if new_time >= end_time:
                 break
@@ -210,7 +201,6 @@ def generate(model, start_time, end_time, inputs=None, controls=None, top_p=1.0,
 
     events, _ = ops.split(tokens)
     return ops.sort(ops.unpad(events) + future)
-
 
 def generate_ar(model, start_time, end_time, inputs=None, controls=None, top_p=1.0, debug=False, delta=DELTA*TIME_RESOLUTION):
     if inputs is None:
